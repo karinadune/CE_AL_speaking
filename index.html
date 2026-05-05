@@ -145,6 +145,109 @@
   .done-banner h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; margin-bottom: 0.35rem; }
   .done-banner p { color: var(--dust); font-size: 0.88rem; }
 
+  /* SCAFFOLD / HINT PANELS */
+  .scaffold-panel {
+    display: none;
+    background: #fffdf7;
+    border: 1.5px solid var(--amber);
+    border-radius: 10px;
+    padding: 1.2rem 1.4rem;
+    margin-top: 0.9rem;
+    animation: fadeUp 0.25s ease;
+  }
+  .scaffold-panel.open { display: block; }
+  .scaffold-panel h4 {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 0.9rem;
+  }
+  .scaffold-dj {
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 7px;
+    padding: 0.7rem 1rem;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+  }
+  .scaffold-dj em { color: var(--amber-light, #e8a84a); font-style: normal; }
+  .scaffold-step {
+    display: flex;
+    gap: 0.8rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--dust);
+    font-size: 0.85rem;
+    line-height: 1.55;
+  }
+  .scaffold-step:last-child { border-bottom: none; padding-bottom: 0; }
+  .scaffold-step-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--amber);
+    font-weight: 500;
+    min-width: 1.4rem;
+    padding-top: 0.1rem;
+  }
+  .scaffold-step-text strong { color: var(--ink); }
+  .scaffold-step-text em { color: var(--muted); font-style: italic; }
+
+  /* criteria list */
+  .criteria-list { list-style: none; }
+  .criteria-list li {
+    display: flex;
+    gap: 0.7rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--dust);
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+  .criteria-list li:last-child { border-bottom: none; }
+  .crit-mark { color: var(--amber); font-size: 0.9rem; flex-shrink: 0; }
+
+  /* hint per question */
+  .hint-panel {
+    display: none;
+    background: #fff8ee;
+    border-left: 3px solid var(--amber);
+    border-radius: 0 8px 8px 0;
+    padding: 0.85rem 1rem;
+    margin-top: 0.7rem;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    animation: fadeUp 0.25s ease;
+  }
+  .hint-panel.open { display: block; }
+  .hint-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 0.35rem;
+  }
+
+  .btn-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.38rem 0.85rem;
+    border-radius: 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1.5px solid var(--amber);
+    background: transparent;
+    color: var(--amber);
+    transition: all 0.18s;
+    margin-top: 0.75rem;
+  }
+  .btn-hint:hover { background: var(--amber); color: #fff; }
+
   @media (max-width: 580px) {
     .mode-grid { grid-template-columns: 1fr; }
     .quotes-grid { grid-template-columns: 1fr; }
@@ -220,6 +323,17 @@
     <h3>Source Material</h3>
     <div class="quotes-grid" id="prep-quotes"></div>
   </div>
+  <button class="btn-hint" onclick="togglePanel('planner-panel', this)">💡 Talk Planner</button>
+  <div class="scaffold-panel" id="planner-panel">
+    <h4>Talk Planner</h4>
+    <div class="scaffold-dj">🎧 <strong>Be the DJ, not the karaoke singer.</strong> The sources are your tracks — mix them, don't perform them. Every point must answer: <em>so what?</em></div>
+    <div class="scaffold-step"><span class="scaffold-step-num">Intro</span><span class="scaffold-step-text"><strong>Name the topic and state your angle.</strong> Tell the listener what you'll argue and how you'll structure it.</span></div>
+    <div class="scaffold-step"><span class="scaffold-step-num">Pt 1</span><span class="scaffold-step-text"><strong>Cue a source.</strong> Then mix in your own thinking — <em>what does it mean for the topic?</em></span></div>
+    <div class="scaffold-step"><span class="scaffold-step-num">Pt 2</span><span class="scaffold-step-text"><strong>Cue a source.</strong> Then mix in your own thinking — <em>what does it mean for the topic?</em></span></div>
+    <div class="scaffold-step"><span class="scaffold-step-num">Pt 3</span><span class="scaffold-step-text"><strong>Cue a source.</strong> Then mix in your own thinking — <em>what does it mean for the topic?</em></span></div>
+    <div class="scaffold-step"><span class="scaffold-step-num">End</span><span class="scaffold-step-text"><strong>Pull it together.</strong> Give your overall judgement. What does this all mean? So what?</span></div>
+  </div>
+
   <div class="timer-display">
     <div class="timer-clock" id="prep-clock">20:00</div>
     <div class="timer-sublabel">preparation time remaining</div>
@@ -251,6 +365,19 @@
       <li><span class="bullet"></span>Draw conclusions on the topic</li>
     </ul>
   </div>
+  <button class="btn-hint" onclick="togglePanel('criteria-panel', this)">💡 Criteria Reminder</button>
+  <div class="scaffold-panel" id="criteria-panel">
+    <h4>What the examiner is looking for</h4>
+    <ul class="criteria-list">
+      <li><span class="crit-mark">✦</span>Structure clearly — intro, arguments, conclusion</li>
+      <li><span class="crit-mark">✦</span>Use at least 3 sources and refer to them specifically</li>
+      <li><span class="crit-mark">✦</span>State your position and back it up with developed arguments</li>
+      <li><span class="crit-mark">✦</span>Analyse and evaluate — don't just retell or list</li>
+      <li><span class="crit-mark">✦</span>Draw a conclusion that shows your overall judgement</li>
+      <li><span class="crit-mark">✦</span>Speak fluently — well-timed pauses are fine, hesitation is not</li>
+    </ul>
+  </div>
+
   <div class="rec-row"><span class="rec-indicator"><span class="rec-dot"></span>SPEAKING</span></div>
   <div class="timer-display">
     <div class="timer-clock" id="talk-clock">5:00</div>
@@ -798,11 +925,19 @@ function renderQ() {
     </div>`;
   }
 
+  const hintText = getHint(qObj.q);
+  const hintId = `hint-full-${currentQIndex}`;
+
   document.getElementById('qa-slot').innerHTML = `
     <div class="q-card">
       <div class="q-num">Question ${currentQIndex+1} of ${total}</div>
       <div class="q-text">${qObj.q}</div>
       ${refHtml}
+      <button class="btn-hint" onclick="togglePanel('${hintId}', this)">💡 Hint</button>
+      <div class="hint-panel" id="${hintId}">
+        <div class="hint-label">How to approach this</div>
+        ${hintText}
+      </div>
     </div>`;
 
   const btn = document.getElementById('btn-next-q');
@@ -839,7 +974,17 @@ function setupQAOnly() {
         <div class="qr-source">— ${qObj.quoteRef.source}</div>
       </div>`;
     }
-    item.innerHTML = `<div class="qi-num-label">Question ${i+1}</div><div class="qi-q-text">${qObj.q}</div>${refHtml}`;
+    const hintText = getHint(qObj.q);
+    const hintId = `hint-qaonly-${i}`;
+    item.innerHTML = `
+      <div class="qi-num-label">Question ${i+1}</div>
+      <div class="qi-q-text">${qObj.q}</div>
+      ${refHtml}
+      <button class="btn-hint" onclick="togglePanel('${hintId}', this)">💡 Hint</button>
+      <div class="hint-panel" id="${hintId}">
+        <div class="hint-label">How to approach this</div>
+        ${hintText}
+      </div>`;
     list.appendChild(item);
   });
   clearInterval(qaonlyInterval);
@@ -878,6 +1023,38 @@ function renderQAOnlyClock() {
   const bar = document.getElementById('qaonly-bar');
   bar.style.width = (qaonlyLeft/90*100)+'%';
   bar.style.background = qaonlyLeft<=15?'var(--red)':'var(--amber)';
+}
+
+// ── HINTS ──────────────────────────────────────────
+function togglePanel(id, btn) {
+  const panel = document.getElementById(id);
+  const isOpen = panel.classList.toggle('open');
+  btn.textContent = isOpen ? '✕ Hide hint' : '💡 Hint';
+}
+
+function getHint(question) {
+  const q = question.toLowerCase();
+
+  if (q.includes('criteria did you use')) {
+    return `Explain your <strong>reasoning</strong>, not just your choices. Which sources offered the strongest or most contrasting perspectives? How did they allow you to build a coherent argument? Avoid saying "I chose this because it's interesting" — say what argumentative work it does.`;
+  }
+  if (q.includes('what issue does') || q.includes('what issue')) {
+    return `Don't just paraphrase the quote. Ask: <strong>what problem or tension does it point to?</strong> What does the speaker assume about people, society, or behaviour? What real-world situation does it challenge or critique? Lead with the issue, then explain why it matters for the topic.`;
+  }
+  if (q.includes('what can you infer')) {
+    return `<strong>Inference means going beyond the words.</strong> What is the speaker suggesting without saying directly? What values, concerns, or assumptions lie behind the statement? Make a claim about what the quote implies — then justify it.`;
+  }
+  if (q.includes('how do you understand') || q.includes('how do you interpret')) {
+    return `First explain what the quote means in your own words. Then <strong>connect it to the bigger picture</strong> — what does it reveal, challenge, or add to the topic? Don't stop at "it means that…" — show why it's significant.`;
+  }
+  if (q.includes('what does') && q.includes('imply')) {
+    return `<strong>Look for the hidden message.</strong> What is the speaker taking for granted? What does the quote suggest about human behaviour, society, or values — without stating it outright? State your inference clearly and explain what it means for the topic.`;
+  }
+  if (q.includes('to what extent')) {
+    return `This is an <strong>evaluative question</strong> — don't just argue one side. State your position, acknowledge complexity, then defend your judgement with reasons. "To a large extent, yes — because… however…" is a strong opening move.`;
+  }
+  // fallback for open thematic questions
+  return `<strong>State your position clearly first.</strong> Then give 2–3 developed reasons — not a list, but an argument. Use examples where you can. Aim to extend and deepen your talk, not repeat it. 4–5 well-developed sentences is better than 8 rushed ones.`;
 }
 
 // ── BOOT ───────────────────────────────────────────

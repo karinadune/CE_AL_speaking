@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CE Speaking Practice</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1208;
+    --cream: #f5f0e8;
+    --amber: #c8832a;
+    --dust: #d4c9b0;
+    --muted: #7a6e5e;
+    --paper: #fffdf7;
+    --red: #c0392b;
+    --sage: #4a7c5e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      radial-gradient(ellipse at 15% 60%, rgba(200,131,42,0.07) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 15%, rgba(74,124,94,0.05) 0%, transparent 50%);
+    pointer-events: none; z-index: 0;
+  }
+  .app { position: relative; z-index: 1; max-width: 880px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
+
+  header { text-align: center; padding: 2.5rem 0 2rem; border-bottom: 1px solid var(--dust); margin-bottom: 2.5rem; }
+  .header-label { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.25em; color: var(--amber); text-transform: uppercase; margin-bottom: 0.5rem; }
+  header h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 5vw, 2.5rem); font-weight: 700; }
+  header p { margin-top: 0.5rem; font-size: 0.88rem; color: var(--muted); }
+
+  .screen { display: none; }
+  .screen.active { display: block; animation: fadeUp 0.35s ease; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* MODE CARDS */
+  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin: 1.5rem 0 2.5rem; }
+  .mode-card { background: var(--paper); border: 2px solid var(--dust); border-radius: 10px; padding: 1.6rem 1.4rem; cursor: pointer; transition: all 0.2s; }
+  .mode-card:hover { border-color: var(--amber); box-shadow: 0 4px 18px rgba(200,131,42,0.13); transform: translateY(-2px); }
+  .mc-icon { font-size: 1.6rem; margin-bottom: 0.6rem; }
+  .mc-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; margin-bottom: 0.35rem; }
+  .mc-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+  .mc-stages { margin-top: 0.7rem; display: flex; flex-wrap: wrap; gap: 0.3rem; }
+  .mc-pill { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; background: var(--cream); border: 1px solid var(--dust); border-radius: 20px; padding: 0.2rem 0.55rem; color: var(--muted); }
+
+  .section-title { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin: 1.6rem 0 0.8rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--dust); }
+
+  /* PAPER GRID */
+  .select-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 0.85rem; margin-bottom: 1rem; }
+  .paper-card { background: var(--paper); border: 1.5px solid var(--dust); border-radius: 8px; padding: 1rem 1.1rem; cursor: pointer; transition: all 0.2s; }
+  .paper-card:hover { border-color: var(--amber); transform: translateY(-2px); box-shadow: 0 4px 14px rgba(200,131,42,0.13); }
+  .pc-num { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--amber); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.25rem; }
+  .pc-topic { font-family: 'Playfair Display', serif; font-size: 0.92rem; line-height: 1.3; }
+
+  /* STAGE PILLS */
+  .stage-pills { display: flex; gap: 0.4rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.6rem; }
+  .stage-pill { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.25rem 0.75rem; border-radius: 20px; border: 1px solid var(--dust); color: var(--muted); background: var(--paper); }
+  .stage-pill.active { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+  .stage-pill.done { background: var(--sage); color: #fff; border-color: var(--sage); }
+
+  /* TOPIC BANNER */
+  .topic-banner { background: var(--ink); color: var(--cream); border-radius: 10px; padding: 1.6rem 2rem; margin-bottom: 1.4rem; }
+  .tb-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.2em; color: var(--amber); text-transform: uppercase; margin-bottom: 0.35rem; }
+  .topic-banner h2 { font-family: 'Playfair Display', serif; font-size: clamp(1.2rem, 3.5vw, 1.7rem); font-style: italic; }
+
+  /* MATERIALS */
+  .materials-box { background: var(--paper); border: 1.5px solid var(--dust); border-radius: 10px; padding: 1.4rem; margin-bottom: 1.3rem; }
+  .materials-box h3 { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.9rem; }
+  .quotes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 0.75rem; }
+  .quote-item { background: var(--cream); border-left: 3px solid var(--amber); border-radius: 0 6px 6px 0; padding: 0.75rem 0.9rem; font-size: 0.84rem; line-height: 1.5; }
+  .qi-source { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--muted); margin-top: 0.4rem; font-style: italic; }
+
+  .instr-box { background: #fff8ee; border: 1.5px solid #f0d9a8; border-radius: 8px; padding: 0.9rem 1.1rem; margin-bottom: 1.3rem; font-size: 0.84rem; line-height: 1.7; }
+  .instr-box strong { color: var(--amber); }
+
+  /* TIMER */
+  .timer-display { text-align: center; margin: 1.4rem 0 0.5rem; }
+  .timer-clock { font-family: 'Playfair Display', serif; font-size: 4.2rem; font-weight: 700; letter-spacing: -2px; line-height: 1; transition: color 0.3s; }
+  .timer-clock.warn { color: var(--amber); }
+  .timer-clock.urgent { color: var(--red); }
+  .timer-sublabel { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-top: 0.25rem; }
+  .progress-bar { height: 3px; background: var(--dust); border-radius: 2px; margin: 0.7rem 0 1.4rem; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 2px; transition: width 1s linear, background 0.3s; background: var(--amber); }
+
+  .prompts-ul { list-style: none; }
+  .prompts-ul li { display: flex; gap: 0.75rem; align-items: flex-start; padding: 0.55rem 0; border-bottom: 1px solid var(--dust); font-size: 0.88rem; line-height: 1.5; }
+  .prompts-ul li:last-child { border-bottom: none; }
+  .bullet { width: 6px; height: 6px; border-radius: 50%; background: var(--amber); margin-top: 0.55rem; flex-shrink: 0; }
+
+  .rec-row { text-align: center; margin-bottom: 0.4rem; }
+  .rec-indicator { display: inline-flex; align-items: center; gap: 0.45rem; font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.1em; color: var(--red); }
+  .rec-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); animation: blink 1s ease-in-out infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.15} }
+
+  /* QUESTION CARD */
+  .q-card { background: var(--paper); border: 2px solid var(--ink); border-radius: 10px; padding: 1.6rem; margin-bottom: 0.9rem; }
+  .q-num { font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--amber); margin-bottom: 0.5rem; }
+  .q-text { font-family: 'DM Sans', sans-serif; font-size: 1.25rem; font-weight: 500; line-height: 1.6; }
+
+  /* Inline quote reference */
+  .q-quote-ref { margin-top: 1.1rem; padding: 0.8rem 1rem; background: var(--cream); border-left: 3px solid var(--amber); border-radius: 0 6px 6px 0; font-size: 1rem; line-height: 1.6; }
+  .qr-label { font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--amber); margin-bottom: 0.3rem; }
+  .qr-text { color: var(--ink); }
+  .qr-source { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--muted); margin-top: 0.35rem; font-style: italic; }
+
+  /* Q&A per-Q timer */
+  .qa-timer-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; }
+  .qa-clock { font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 700; letter-spacing: -1px; transition: color 0.3s; }
+  .qa-clock.warn { color: var(--amber); }
+  .qa-clock.urgent { color: var(--red); }
+  .qa-timer-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+
+  /* Q&A-only all questions list */
+  .qaonly-list { display: grid; gap: 1.1rem; }
+  .qaonly-item { background: var(--paper); border: 1.5px solid var(--dust); border-radius: 10px; padding: 1.3rem 1.4rem; }
+  .qi-num-label { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--amber); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.4rem; }
+  .qi-q-text { font-family: 'DM Sans', sans-serif; font-size: 1.25rem; font-weight: 500; line-height: 1.6; }
+
+  .nav-hint { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; text-align: center; margin-top: 0.5rem; }
+
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.72rem 1.35rem; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 500; cursor: pointer; border: none; transition: all 0.18s; }
+  .btn-primary { background: var(--ink); color: var(--cream); }
+  .btn-primary:hover { background: #2d2010; transform: translateY(-1px); }
+  .btn-amber { background: var(--amber); color: #fff; }
+  .btn-amber:hover { background: #b07020; }
+  .btn-sage { background: var(--sage); color: #fff; }
+  .btn-sage:hover { background: #3a6a4e; }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1.5px solid var(--dust); }
+  .btn-ghost:hover { border-color: var(--muted); color: var(--ink); }
+  .btn-sm { padding: 0.48rem 0.9rem; font-size: 0.78rem; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+  .btn-row { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; margin-top: 1.1rem; }
+
+  .done-banner { text-align: center; background: var(--ink); color: var(--cream); border-radius: 12px; padding: 2rem; margin-bottom: 1.5rem; }
+  .done-banner h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; margin-bottom: 0.35rem; }
+  .done-banner p { color: var(--dust); font-size: 0.88rem; }
+
+  @media (max-width: 580px) {
+    .mode-grid { grid-template-columns: 1fr; }
+    .quotes-grid { grid-template-columns: 1fr; }
+    .timer-clock { font-size: 3rem; }
+    .select-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+<header>
+  <div class="header-label">Latvian CE · Advanced Level</div>
+  <h1>Speaking Practice</h1>
+  <p>Choose a mode, pick a paper, practise</p>
+</header>
+
+<!-- MODE SELECT -->
+<div class="screen active" id="screen-mode">
+  <div class="section-title">Select practice mode</div>
+  <div class="mode-grid">
+    <div class="mode-card" onclick="setMode('full')">
+      <div class="mc-icon">🎙️</div>
+      <div class="mc-title">Full Simulation</div>
+      <div class="mc-desc">Timed preparation stage, 5-minute talk stage, then all three Q&amp;A questions one by one with per-question timers.</div>
+      <div class="mc-stages">
+        <span class="mc-pill">20 min prep</span>
+        <span class="mc-pill">5 min talk</span>
+        <span class="mc-pill">Q &amp; A</span>
+      </div>
+    </div>
+    <div class="mode-card" onclick="setMode('qa')">
+      <div class="mc-icon">💬</div>
+      <div class="mc-title">Q&amp;A Only</div>
+      <div class="mc-desc">Jump straight to the three follow-up questions. Each question shows the relevant quote from the material where applicable.</div>
+      <div class="mc-stages">
+        <span class="mc-pill">All 3 questions</span>
+        <span class="mc-pill">Quotes shown</span>
+        <span class="mc-pill">1:30 timer</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAPER SELECT -->
+<div class="screen" id="screen-select">
+  <div class="btn-row" style="margin-bottom:1.2rem">
+    <button class="btn btn-ghost btn-sm" onclick="goMode()">← Change mode</button>
+    <span id="mode-badge" style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--amber);letter-spacing:0.15em;text-transform:uppercase;"></span>
+  </div>
+  <div class="section-title">2024 Exam</div>
+  <div class="select-grid" id="grid-2024"></div>
+  <div class="section-title">2025 Exam</div>
+  <div class="select-grid" id="grid-2025"></div>
+</div>
+
+<!-- PREP (full mode) -->
+<div class="screen" id="screen-prep">
+  <div class="stage-pills">
+    <div class="stage-pill active">Preparation</div>
+    <div class="stage-pill">Talk</div>
+    <div class="stage-pill">Q &amp; A</div>
+  </div>
+  <div class="topic-banner">
+    <div class="tb-label">Your Topic</div>
+    <h2 id="prep-topic"></h2>
+  </div>
+  <div class="instr-box">
+    <strong>Task:</strong> Read the material and select <strong>at least 3 points</strong> to support your argument. In your talk: introduce the topic &amp; structure · present arguments with evidence · draw conclusions.<br>
+    <strong>20 minutes to prepare. You may make notes.</strong>
+  </div>
+  <div class="materials-box">
+    <h3>Source Material</h3>
+    <div class="quotes-grid" id="prep-quotes"></div>
+  </div>
+  <div class="timer-display">
+    <div class="timer-clock" id="prep-clock">20:00</div>
+    <div class="timer-sublabel">preparation time remaining</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="prep-bar" style="width:100%"></div></div>
+  <div class="btn-row">
+    <button class="btn btn-primary" id="btn-start-prep">▶ Start Timer</button>
+    <button class="btn btn-amber" id="btn-ready-talk" style="display:none" onclick="goTalk()">Ready — Begin Talk →</button>
+    <button class="btn btn-ghost btn-sm" onclick="goSelect()">← Back</button>
+  </div>
+</div>
+
+<!-- TALK (full mode) -->
+<div class="screen" id="screen-talk">
+  <div class="stage-pills">
+    <div class="stage-pill done">Preparation ✓</div>
+    <div class="stage-pill active">Talk</div>
+    <div class="stage-pill">Q &amp; A</div>
+  </div>
+  <div class="topic-banner">
+    <div class="tb-label">Speak for 5 minutes on</div>
+    <h2 id="talk-topic"></h2>
+  </div>
+  <div class="materials-box">
+    <h3>Cover in your talk</h3>
+    <ul class="prompts-ul">
+      <li><span class="bullet"></span>Introduce the topic and outline the structure of your talk</li>
+      <li><span class="bullet"></span>Present your arguments, supported by the material</li>
+      <li><span class="bullet"></span>Draw conclusions on the topic</li>
+    </ul>
+  </div>
+  <div class="rec-row"><span class="rec-indicator"><span class="rec-dot"></span>SPEAKING</span></div>
+  <div class="timer-display">
+    <div class="timer-clock" id="talk-clock">5:00</div>
+    <div class="timer-sublabel">talk time remaining</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="talk-bar" style="width:100%;background:var(--sage)"></div></div>
+  <div class="btn-row">
+    <button class="btn btn-sage" onclick="goQA()">Finished — Go to Q&amp;A →</button>
+  </div>
+</div>
+
+<!-- Q&A (full mode — one at a time) -->
+<div class="screen" id="screen-qa">
+  <div class="stage-pills">
+    <div class="stage-pill done">Preparation ✓</div>
+    <div class="stage-pill done">Talk ✓</div>
+    <div class="stage-pill active">Q &amp; A</div>
+  </div>
+  <div id="qa-slot"></div>
+  <div class="btn-row" id="qa-btn-row">
+    <button class="btn btn-sage" id="btn-next-q" onclick="nextQuestion()">Next Question →</button>
+  </div>
+  <div class="nav-hint" id="qa-nav-hint"></div>
+</div>
+
+<!-- Q&A ONLY MODE -->
+<div class="screen" id="screen-qaonly">
+  <div class="btn-row" style="margin-bottom:1.2rem">
+    <button class="btn btn-ghost btn-sm" onclick="goSelect()">← Choose another paper</button>
+  </div>
+  <div class="topic-banner">
+    <div class="tb-label">Q &amp; A Practice</div>
+    <h2 id="qaonly-topic"></h2>
+  </div>
+  <div class="section-title">All three follow-up questions</div>
+  <div class="qaonly-list" id="qaonly-list"></div>
+
+  <div style="background:var(--paper);border:1.5px solid var(--dust);border-radius:10px;padding:1.3rem 1.4rem;margin-top:1.5rem;">
+    <div class="section-title" style="margin-top:0;margin-bottom:0.8rem">Per-question answer timer</div>
+    <div class="qa-timer-row">
+      <div>
+        <div class="qa-clock" id="qaonly-clock">1:30</div>
+        <div class="qa-timer-label">per question</div>
+      </div>
+      <div class="btn-row" style="margin-top:0">
+        <button class="btn btn-amber btn-sm" id="btn-qaonly-start" onclick="startQAOnlyTimer()">▶ Start</button>
+        <button class="btn btn-ghost btn-sm" onclick="resetQAOnlyTimer()">↺ Reset</button>
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="qaonly-bar" style="width:100%"></div></div>
+    <div class="nav-hint" id="qaonly-hint" style="text-align:left">Press Start when you begin answering. Reset between questions.</div>
+  </div>
+</div>
+
+<!-- DONE -->
+<div class="screen" id="screen-done">
+  <div class="done-banner">
+    <h2>Practice Complete 🎉</h2>
+    <p>Well done — you've completed the full speaking task simulation.</p>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="goSelect()">Practice another paper</button>
+    <button class="btn btn-ghost" onclick="goMode()">Change mode</button>
+  </div>
+</div>
+
+<script>
+const PAPERS = {
+  2024: [
+    {
+      num:"1", topic:"Thoughts and Facts",
+      quotes:[
+        {text:"The fact that an opinion has been widely held is no evidence whatever that it is not utterly absurd; indeed in view of the silliness of the majority of mankind, a widely spread belief is more likely to be foolish than sensible.", source:"Bertrand Russell, British mathematician"},
+        {text:"Every man has the right to an opinion but no man has a right to be wrong in his facts. Nor, above all, to persist in errors as to facts.", source:"Bernard Baruch, American financier"},
+        {text:"Facts are the fundamental building blocks of science, but bringing those facts together to have an insight of a certain phenomenon requires a rational, conscientious and creative mind.", source:"Abhijit Naskar, neuroscientist"},
+        {text:"The great enemy of truth is very often not the lie — deliberate, contrived and dishonest — but the myth — persistent, persuasive and unrealistic. Too often we hold fast to the clichés of our forebears. We enjoy the comfort of opinion without the discomfort of thought.", source:"John F. Kennedy, 35th U.S. President"},
+        {text:"Facts are stubborn things; and whatever may be our wishes, our inclinations, or the dictates of our passions, they cannot alter the state of facts and evidence.", source:"John Adams, 2nd U.S. President"}
+      ],
+      questions:[
+        {q:"What criteria did you use to select the most relevant information for your talk? Why?", quoteRef:null},
+        {q:"What issue does Kennedy's quote raise?", quoteRef:{text:"The great enemy of truth is very often not the lie — deliberate, contrived and dishonest — but the myth — persistent, persuasive and unrealistic. Too often we hold fast to the clichés of our forebears. We enjoy the comfort of opinion without the discomfort of thought.", source:"John F. Kennedy, 35th U.S. President"}},
+        {q:"Why is it important to be able to distinguish between facts and opinions in various aspects of life?", quoteRef:null}
+      ]
+    },
+    {
+      num:"2", topic:"The Road to Discovery",
+      quotes:[
+        {text:"The important thing is not to stop questioning. Curiosity has its own reason for existence. One cannot help but be in awe when he contemplates the mysteries of eternity, of life, of the marvellous structure of reality.", source:"Albert Einstein, physicist"},
+        {text:"While researchers strive to expand the frontiers of human faculties, the products of their endeavors tend to dull the creative urge of mankind at large.", source:"BS Murthy, Indian novelist"},
+        {text:"Complex tools using artificial intelligence can efficiently analyze data as well as generate new hypotheses and theories. Along with AI becoming increasingly prevalent in our daily lives, its application to different scientific domains is becoming more widespread.", source:"Bartlett et al., Perspectives on Psychological Science, 2023"},
+        {text:"We live in a science-fiction age. Yesterday's fantasy is already today's fact; and today's imaginings, well, perhaps only 24 hours from now, they too will have come to pass.", source:"Science Fiction Digest, 1954"},
+        {text:"Our real discoveries come from chaos, from going to the place that looks wrong and stupid and foolish.", source:"Chuck Palahniuk, American novelist"}
+      ],
+      questions:[
+        {q:"What criteria did you use to select the most relevant information for your talk? Why?", quoteRef:null},
+        {q:"What can you infer from Murthy's quote?", quoteRef:{text:"While researchers strive to expand the frontiers of human faculties, the products of their endeavors tend to dull the creative urge of mankind at large.", source:"BS Murthy, Indian novelist"}},
+        {q:"How might artificial intelligence affect the process of scientific discovery?", quoteRef:null}
+      ]
+    },
+    {
+      num:"3", topic:"Time Management",
+      quotes:[
+        {text:"In a nationally representative cross-occupational survey, we found that idle time occurs frequently across all occupational categories; we estimate that employers in the United States pay roughly $100 billion in wages for time that employees spend idle.", source:"Brodsky & Amabile, 2018"},
+        {text:"The best moments in our lives are not the passive, receptive, relaxing times. The best moments usually occur if a person's body or mind is stretched to its limits in a voluntary effort to accomplish something difficult and worthwhile.", source:"Flow: The Psychology of Optimal Experience"},
+        {text:"The problem with trying to make time for everything that feels important is that you definitely never will. There's no reason to believe you'll ever feel 'on top of things,' or make time for everything that matters, simply by getting more done.", source:"Oliver Burkeman, British author and journalist"},
+        {text:"In this world, one of the biggest illusions that we live in is that we have unlimited time. With that mindset, we are uncontrolled to waste it as much as we can.", source:"Neeraj Agnihotri, author"},
+        {text:"There are always a handful of roles that each of us is juggling. Sometimes it can be difficult to even take basic care of ourselves — but there are small things that can be done to make self-care a little bit easier.", source:"Mental Health America, mhanational.org"}
+      ],
+      questions:[
+        {q:"What criteria did you use to select the most relevant information for your talk? Why?", quoteRef:null},
+        {q:"How do you interpret Burkeman's quote?", quoteRef:{text:"The problem with trying to make time for everything that feels important is that you definitely never will. There's no reason to believe you'll ever feel 'on top of things,' or make time for everything that matters, simply by getting more done.", source:"Oliver Burkeman, British author and journalist"}},
+        {q:"How can individuals balance short-term tasks and achieve long-term goals?", quoteRef:null}
+      ]
+    },
+    {
+      num:"4", topic:"Language and Communication",
+      quotes:[
+        {text:"Language has played a pivotal role in human evolution. It is widely believed that human language emerged around 50,000 to 100,000 years ago. Prior to this, our ancestors communicated using grunts, gestures, and other basic sounds.", source:"The Evolution of Language, medium.com"},
+        {text:"86% of employees and executives blame the lack of effective collaboration and communication as the leading causes for errors in the workplace.", source:"apollotechnical.com"},
+        {text:"In face-to-face communication, most of what we convey goes through body language or tone of voice. When communicating through writing — the medium of 99% of the internet — it becomes much easier to misunderstand the implicit meaning of a message.", source:"youthtimemag.com"},
+        {text:"You don't realize how language actually interferes with communication until you don't have it, how it gets in the way like an overdominant sense. Words aren't always the most reliable thing.", source:"Lily King, American novelist"},
+        {text:"The great enemy of communication is the illusion of it. Human beings have the habit of talking and writing too much without conveying any meaning.", source:"Pierre Martineau, Motivation in Advertising, 1957"}
+      ],
+      questions:[
+        {q:"What criteria did you use to select the most relevant information for your talk? Why?", quoteRef:null},
+        {q:"What issue does Martineau's quote raise?", quoteRef:{text:"The great enemy of communication is the illusion of it. Human beings have the habit of talking and writing too much without conveying any meaning.", source:"Pierre Martineau, Motivation in Advertising, 1957"}},
+        {q:"How could communication breakdowns be avoided?", quoteRef:null}
+      ]
+    },
+    {
+      num:"5", topic:"The Power of Expectations",
+      quotes:[
+        {text:"We live within a structure of social expectations, of belief, awareness, and apprehension of how others will react to our behavior. As we behave toward others, we also apprehend how our behavior will affect them and what we can expect in return.", source:"R.J. Rummel, American political scientist"},
+        {text:"Change will not come if we wait for some other person or some other time. We are the ones we've been waiting for. We are the change that we seek.", source:"Barack Obama, 44th U.S. President"},
+        {text:"Young people are now facing more competitive environments, more unrealistic expectations, and more anxious and controlling parents than generations before.", source:"Curran & Hill, 2019"},
+        {text:"Normal is getting dressed in clothes that you buy for work and driving through traffic in a car that you are still paying for — in order to get to the job you need to pay for the clothes and the car, and the house you leave vacant all day so you can afford to live in it.", source:"Ellen Goodman, Pulitzer Prize-winning author"},
+        {text:"Treat a man as he is and he will remain as he is. Treat a man as he can and should be and he will become as he can and should be.", source:"Stephen R. Covey, American educator and author"}
+      ],
+      questions:[
+        {q:"What criteria did you use to select the most relevant information for your talk? Why?", quoteRef:null},
+        {q:"What issue does Ellen Goodman's quote raise?", quoteRef:{text:"Normal is getting dressed in clothes that you buy for work and driving through traffic in a car that you are still paying for — in order to get to the job you need to pay for the clothes and the car, and the house you leave vacant all day so you can afford to live in it.", source:"Ellen Goodman, Pulitzer Prize-winning author"}},
+        {q:"What could help young people cope with social pressure?", quoteRef:null}
+      ]
+    },
+    {
+      num:"6", topic:"Global Citizenship",
+      quotes:[
+        {text:"Global citizenship has numerous benefits that extend beyond personal growth and development such as increased cultural understanding, improved communication skills, enhanced problem-solving skills and greater career opportunities.", source:"globalcitizenyear.org"},
+        {text:"You are a valuable instrument in the orchestration of your own world, and the overall harmony of the universe.", source:"Suzy Kassem, American writer and poet"},
+        {text:"The world needs global citizenship education more than ever before, as humanity is plagued by poverty and adverse climate change impacts. Global citizenship education is critical to breaking barriers in development.", source:"mgiep.unesco.org"},
+        {text:"The world is facing multiple compounding crises. But look around, and the world is also full of remarkable individuals, dedicating themselves to the fight to uplift the most vulnerable and achieve equality and justice for all.", source:"globalcitizen.org"},
+        {text:"For the first time in 15 years of tracking, nearly one in two people (49%) surveyed across 14 countries see themselves more as global citizens than citizens of their country.", source:"globescan.com"}
+      ],
+      questions:[
+        {q:"What criteria did you use to select the most relevant information for your talk? Why?", quoteRef:null},
+        {q:"What issue does Kassem's quote raise?", quoteRef:{text:"You are a valuable instrument in the orchestration of your own world, and the overall harmony of the universe.", source:"Suzy Kassem, American writer and poet"}},
+        {q:"How can global awareness and engagement contribute to the well-being and progress of the local community?", quoteRef:null}
+      ]
+    },
+    {
+      num:"D1", topic:"In Search of Truth",
+      quotes:[
+        {text:"There is beauty in truth, even if it's painful. Those who lie, twist life so that it looks tasty to the lazy, brilliant to the ignorant, and powerful to the weak. But lies only strengthen our defects.", source:"José N. Harris, author"},
+        {text:"In the tapestry of truth, white lies are the threads that delicately weave the fabric of harmony. They protect feelings, shield egos, and oil the gears of social machinery.", source:"ChatGPT"},
+        {text:"A lie is an act of self-abdication, because one surrenders one's reality to the person to whom one lies, making that person one's master… there are no white lies, there is only the blackest of destruction, and a white lie is the blackest of all.", source:"Ayn Rand, Atlas Shrugged, 1957"},
+        {text:"According to a study conducted by the University of Notre Dame, participants lied an average of 1.65 times a day. The most common lie was 'I'm fine' when someone is not actually feeling okay.", source:"Judah Schiller, Lying Statistics & Facts"},
+        {text:"The truth is a beautiful and terrible thing, and should therefore be treated with great caution.", source:"Dumbledore, Harry Potter and the Sorcerer's Stone (J.K. Rowling)"}
+      ],
+      questions:[
+        {q:"What criteria did you use to select the most relevant information for your talk? Why?", quoteRef:null},
+        {q:"How do you understand Ayn Rand's quote?", quoteRef:{text:"A lie is an act of self-abdication, because one surrenders one's reality to the person to whom one lies, making that person one's master… there are no white lies, there is only the blackest of destruction, and a white lie is the blackest of all.", source:"Ayn Rand, Atlas Shrugged, 1957"}},
+        {q:"Why is truth sometimes seen as subjective?", quoteRef:null}
+      ]
+    },
+    {
+      num:"D2", topic:"Who Are We and Where Are We Going?",
+      quotes:[
+        {text:"Why waste time proving over and over how great you are, when you could be getting better? Why look for friends or partners who will just shore up your self-esteem instead of ones who will also challenge you to grow?", source:"Carol S. Dweck, Mindset: The New Psychology of Success"},
+        {text:"The saddest aspect of life right now is that science gathers knowledge faster than society gathers wisdom.", source:"Isaac Asimov, American writer and professor"},
+        {text:"Innovation is easier said than done. It often requires you to collaborate with others, overcome resistance from stakeholders, and invest valuable time and resources into generating solutions.", source:"Boyles M., Innovation in Business, 2022"},
+        {text:"We are just an advanced breed of monkeys on a minor planet of a very average star. But we can understand the Universe. That makes us something very special.", source:"Stephen Hawking, English theoretical physicist and cosmologist"},
+        {text:"We know very little, and yet it is astonishing that we know so much, and still more astonishing that so little knowledge can give us so much power.", source:"Bertrand Russell, British mathematician and philosopher"}
+      ],
+      questions:[
+        {q:"What criteria did you use to select the most relevant information for your talk? Why?", quoteRef:null},
+        {q:"How do you understand Asimov's quote?", quoteRef:{text:"The saddest aspect of life right now is that science gathers knowledge faster than society gathers wisdom.", source:"Isaac Asimov, American writer and professor"}},
+        {q:"What moral dilemmas are connected with progress and accumulation of knowledge?", quoteRef:null}
+      ]
+    },
+    {
+      num:"D3", topic:"Young People's Social Participation",
+      quotes:[
+        {text:"Today's young people are highly motivated to generate positive social change. Social entrepreneurship may have great potential to mobilize youth to engage in efforts to achieve major social objectives.", source:"Holt & Littlewood, 2014"},
+        {text:"We cannot always build the future for our youth, but we can build our youth for the future.", source:"Franklin D. Roosevelt, 32nd U.S. President"},
+        {text:"Youth changemakers share a growth mindset, personal agency and self-efficacy, optimism and hope, empathy, a 'we' focus, and intrinsic motivation and passion for making the world a better place.", source:"perspectivesblog.sagepub.com"},
+        {text:"Young people who are supported to participate in decision-making are more likely to have increased confidence and self-belief, exercise positive career choices and have greater involvement in the future.", source:"myd.govt.nz"},
+        {text:"A majority (58%) of young people are active in the societies they live in. Young people's most common expectation is for decision-makers to listen more to their demands and act on them.", source:"Eurobarometer, erasmus-plus.ec.europa.eu"}
+      ],
+      questions:[
+        {q:"What criteria did you use to select the most relevant information for your talk? Why?", quoteRef:null},
+        {q:"What issue does Roosevelt's quote raise?", quoteRef:{text:"We cannot always build the future for our youth, but we can build our youth for the future.", source:"Franklin D. Roosevelt, 32nd U.S. President"}},
+        {q:"What could communities do to encourage and support youth social participation?", quoteRef:null}
+      ]
+    },
+    {
+      num:"D4", topic:"Science and Scientists",
+      quotes:[
+        {text:"If I have seen further, it is by standing upon the shoulders of giants.", source:"Sir Isaac Newton, English physicist and mathematician"},
+        {text:"Too great a burden of knowledge can clog the wheels of imagination. When a distinguished but elderly scientist states that something is impossible, he is very probably wrong.", source:"Arthur C. Clarke, Hazards of Prophecy, 1962"},
+        {text:"Youth Participatory Action Research works with participants, rather than on or for them. Children and youth become co-researchers in partnership with adults to develop research questions and share their results for real-world change.", source:"blogs.dal.ca"},
+        {text:"Between 2014 and 2018, the researcher pool grew three times faster (13.7%) than the global population (4.6%). This translates into 8.854 million full-time equivalent researchers by 2018.", source:"UNESCO Science Report, 2021"},
+        {text:"The scientific man does not aim at an immediate result. He does not expect that his advanced ideas will be readily taken up. His work is like that of the planter — for the future. His duty is to lay the foundation for those who are to come, and point the way.", source:"Nikola Tesla, Problem of Increasing Human Energy"}
+      ],
+      questions:[
+        {q:"What criteria did you use to select the most relevant information for your talk? Why?", quoteRef:null},
+        {q:"What can you infer from Tesla's quote?", quoteRef:{text:"The scientific man does not aim at an immediate result. He does not expect that his advanced ideas will be readily taken up. His work is like that of the planter — for the future. His duty is to lay the foundation for those who are to come, and point the way.", source:"Nikola Tesla, Problem of Increasing Human Energy"}},
+        {q:"What ethical considerations should be taken into account in scientific research? Why?", quoteRef:null}
+      ]
+    },
+    {
+      num:"D5", topic:"Mathematical Thinking",
+      quotes:[
+        {text:"Children need math. As they grow, they need to learn patience and discipline. Patience is precisely what math teaches us. It also teaches us curiosity — why is this rule used here? Why would that number be negative?", source:"medium.com"},
+        {text:"Mathematics is not about numbers, equations, computations, or algorithms: it is about understanding.", source:"William Paul Thurston, American mathematician"},
+        {text:"In an increasingly data-driven society the ability to analyze data, statistics and charts and graphs is a key component of critical thinking.", source:"insidehighered.com"},
+        {text:"We shouldn't be excluding the vast majority of kids from learning practical life skills they need to succeed in life.", source:"Richard Branson, British business magnate"},
+        {text:"Until we stop thinking being bad at math is funny, it will continue to be socially acceptable.", source:"Kelly Dickerson, businessinsider.com, 2013"}
+      ],
+      questions:[
+        {q:"What criteria did you use to select the most relevant information for your talk? Why?", quoteRef:null},
+        {q:"How do you understand Thurston's quote?", quoteRef:{text:"Mathematics is not about numbers, equations, computations, or algorithms: it is about understanding.", source:"William Paul Thurston, American mathematician"}},
+        {q:"How can the process of solving maths problems enhance our ability to think critically?", quoteRef:null}
+      ]
+    },
+    {
+      num:"D6", topic:"Fame",
+      quotes:[
+        {text:"82.5% of respondents affirmed that they were exposed to celebrity shows and celebrity lifestyle programmes. Despite their willingness to pursue higher education, they would take any opportunity that would make them famous over higher education.", source:"Aderonke & Adinlewa, 2020"},
+        {text:"I'm not a rock star. Sure I am, to a certain extent because of the situation, but when kids ask me how it feels to be a rock star, I say leave me alone, I'm not a rock star. I'm not in it for the fame, I'm in it because I like to play.", source:"Eddie Van Halen, American musician"},
+        {text:"Once fame hits, with its growing sense of isolation, mistrust, and lack of personal privacy, the person develops a kind of character-splitting between the 'celebrity self' and the 'authentic self'.", source:"Rockwell, Donna, saybrook.edu, 2012"},
+        {text:"About 30% of adults report regularly daydreaming about being famous, and more than 40% expect to enjoy some passing dose of fame at some point in life.", source:"Carey, Benedict, The New York Times, 2006"},
+        {text:"Social media fame is more fragile and less likely to endure compared to the celebrity of actors and musicians. Influencers' success relies on their ability to maintain an emotional connection with their fans, which can change quickly.", source:"Rutledge, Pamela B., Psychology Today, 2021"}
+      ],
+      questions:[
+        {q:"What criteria did you use to select the most relevant information for your talk? Why?", quoteRef:null},
+        {q:"What issue does Eddie Van Halen's quote raise?", quoteRef:{text:"I'm not a rock star. Sure I am, to a certain extent because of the situation, but when kids ask me how it feels to be a rock star, I say leave me alone, I'm not a rock star. I'm not in it for the fame, I'm in it because I like to play.", source:"Eddie Van Halen, American musician"}},
+        {q:"How does society's preoccupation with fame shape our values and aspirations?", quoteRef:null}
+      ]
+    }
+  ],
+  2025: [
+    {
+      num:"1", topic:"Memory and Memories",
+      quotes:[
+        {text:"Your memory is a monster; you forget — it doesn't. It simply files things away. It keeps things for you, or hides things from you — and summons them to your recall with a will of its own. You think you have a memory; but it has you!", source:"John Irving, A Prayer for Owen Meany, 1989"},
+        {text:"Sooner or later we all discover that the important moments in life are not the advertised ones. The real milestones come to the door of memory unannounced, stray dogs that amble in, sniff around a bit and simply never leave.", source:"Susan B. Anthony, The Ghost in My Life, 1971"},
+        {text:"Through remembering, individuals and collectives establish a continuity between the past, present, and future. This process, in turn, shapes their identities, behavior, attitudes, and choice.", source:"Bachleitner, K., Progress in brain research, 2022"},
+        {text:"Memory naturally lets drop the facts which are less flattering to our self-love — when it does not retain them carefully as subjects not to be approached, marshy spots with a warning flag over them.", source:"George Eliot, The Wasp Credited with the Honey-Comb, 1879"},
+        {text:"A scant 30% of our memories stand as accurate. This highlights how savory nostalgic reminiscences can sometimes be shrouded in the veil of inaccuracy.", source:"Gitnux Marketdata Report 2024"}
+      ],
+      questions:[
+        {q:"What criteria did you use to select the most relevant information for your talk? Why?", quoteRef:null},
+        {q:"What can you infer from Irving's quote?", quoteRef:{text:"Your memory is a monster; you forget — it doesn't. It simply files things away. It keeps things for you, or hides things from you — and summons them to your recall with a will of its own. You think you have a memory; but it has you!", source:"John Irving, A Prayer for Owen Meany, 1989"}},
+        {q:"To what extent can historians draw on individual and collective memories?", quoteRef:null}
+      ]
+    },
+    {
+      num:"2", topic:"Application of Technology",
+      quotes:[
+        {text:"In 2025, two-thirds of global tech spending will come from software and IT services, and in Europe and North America, this share of tech spending will be even higher.", source:"Gitnux Marketdata Report 2024; forrester.com"},
+        {text:"Before you become too entranced with gorgeous gadgets and mesmerizing video displays, let me remind you that information is not knowledge, knowledge is not wisdom, and wisdom is not foresight. Each grows out of the other, and we need them all.", source:"Arthur C. Clarke, British fiction writer"},
+        {text:"The most important and urgent problems of the technology of today are no longer the satisfactions of the primary needs or of archetypal wishes, but the reparation of the evils and damages by technology of yesterday.", source:"Dennis Gabor, Hungarian-British engineer and physicist"},
+        {text:"Every man lives in two realms, the internal and the external. Our problem today is that we have allowed the internal to become lost in the external.", source:"Martin Luther King, Nobel Peace Prize acceptance lecture, 1964"},
+        {text:"Our inventions are wont to be pretty toys, which distract our attention from serious things. They are but improved means to an unimproved end.", source:"Henry David Thoreau, Walden, 1854"}
+      ],
+      questions:[
+        {q:"What criteria did you use to select the most relevant information for your talk? Why?", quoteRef:null},
+        {q:"What issue does Gabor's quote raise?", quoteRef:{text:"The most important and urgent problems of the technology of today are no longer the satisfactions of the primary needs or of archetypal wishes, but the reparation of the evils and damages by technology of yesterday.", source:"Dennis Gabor, Hungarian-British engineer and physicist"}},
+        {q:"What ethical dilemmas does technological development raise?", quoteRef:null}
+      ]
+    },
+    {
+      num:"3", topic:"Time",
+      quotes:[
+        {text:"Don't say you don't have enough time. You have exactly the same number of hours per day that were given to Helen Keller, Pasteur, Michelangelo, Mother Teresa, Leonardo da Vinci, Thomas Jefferson, and Albert Einstein.", source:"H. Jackson Brown Jr., American author"},
+        {text:"Be sure you enjoy yourself wherever you are, even if others consider you are wasting your time; remember that time you enjoy wasting is not wasted time!", source:"Column 'Rilette Writes Again to Her Dear Friend Eve', The Gleaner, 1924"},
+        {text:"88% of working people procrastinate daily. Furthermore, 31.9% said they procrastinate between 2 and 3 hours per day, 17% admit they waste up to 4 hours daily due to repeatedly putting off tasks.", source:"Gitnux Marketdata Report 2024"},
+        {text:"We've been granted the mental capacities to make almost infinitely ambitious plans, yet practically no time at all to put them into action.", source:"Oliver Burkeman, Four Thousand Weeks: Time Management for Mortals, 2021"},
+        {text:"Why do they not teach you that time is a finger snap and an eye blink, and that you should not allow a moment to pass you by without taking joyous, ecstatic note of it?", source:"Pat Conroy, My Losing Season: A Memoir, 2002"}
+      ],
+      questions:[
+        {q:"What criteria did you use to select the most relevant information for your talk? Why?", quoteRef:null},
+        {q:"What does Jackson Brown's quote imply?", quoteRef:{text:"Don't say you don't have enough time. You have exactly the same number of hours per day that were given to Helen Keller, Pasteur, Michelangelo, Mother Teresa, Leonardo da Vinci, Thomas Jefferson, and Albert Einstein.", source:"H. Jackson Brown Jr., American author"}},
+        {q:"How can time management become counterproductive to a person's well-being?", quoteRef:null}
+      ]
+    },
+    {
+      num:"4", topic:"Learning from Experience",
+      quotes:[
+        {text:"What the human being is best at doing is interpreting all new information so that their prior conclusions remain intact.", source:"Warren Buffet, American businessman"},
+        {text:"I recognize that I may be wrong. This makes me insecure. My sense of insecurity keeps me alert, always ready to correct my errors. To others, being wrong is a source of shame; to me, recognizing my mistakes is a source of pride. Once we realize that imperfect understanding is the human condition, there is no shame in being wrong, only in failing to correct our mistakes.", source:"George Soros, businessman and investor"},
+        {text:"A new study of small business owners finds that being unsuccessful is an important part in learning how to become a winner. 88% of respondents say that to be successful, people can't be afraid to make mistakes.", source:"studyfinds.org"},
+        {text:"We should be careful to get out of an experience only the wisdom that is in it and stop there lest we be like the cat that sits down on a hot stove lid. She will never sit down on a hot stove lid again — but also she will never sit down on a cold one anymore.", source:"Mark Twain, Following the Equator, 1897"},
+        {text:"The only real mistake is the one from which we learn nothing.", source:"Henry Ford, American industrialist and business magnate"}
+      ],
+      questions:[
+        {q:"What criteria did you use to select the most relevant information for your talk? Why?", quoteRef:null},
+        {q:"What can you infer from Ford's quote?", quoteRef:{text:"The only real mistake is the one from which we learn nothing.", source:"Henry Ford, American industrialist and business magnate"}},
+        {q:"To what extent does attitude to failure affect our willingness to take risks?", quoteRef:null}
+      ]
+    },
+    {
+      num:"5", topic:"Taking Action",
+      quotes:[
+        {text:"In our old hunter-gatherer environment, action trumped reflection. Lightning-fast reactions were essential to survival; deliberation could be fatal. However, our world today is different; it rewards reflection, even though our instincts may suggest otherwise.", source:"Rolf Dobelli, The Art of Thinking Clearly, 2014"},
+        {text:"84% of young people want to help others but only 52% believe that they can make a positive difference in their community. Some young people believe that their age and inexperience are limiting but report building confidence through participation.", source:"Teenagency: how young people can create a better world, thersa.org"},
+        {text:"A person may cause evil to others not only by his actions but by his inaction, and in either case he is justly accountable to them for the injury.", source:"John Stuart Mill, On Liberty, 1859"},
+        {text:"Every day that goes by without climate action is estimated to cost at least $254 million, based on recent trends, and the average yearly cost of inaction for the last five years has averaged $120.6 billion.", source:"The Cost of Inaction is Real, actonclimate.com"},
+        {text:"The greatest mistake you can make in life is to be continually fearing you will make one.", source:"Elbert Hubbard, The Philistine, 1901"}
+      ],
+      questions:[
+        {q:"What criteria did you use to select the most relevant information for your talk? Why?", quoteRef:null},
+        {q:"How do you interpret John Stuart Mill's quote?", quoteRef:{text:"A person may cause evil to others not only by his actions but by his inaction, and in either case he is justly accountable to them for the injury.", source:"John Stuart Mill, On Liberty, 1859"}},
+        {q:"When can taking action become harmful?", quoteRef:null}
+      ]
+    },
+    {
+      num:"6", topic:"Reciprocity",
+      quotes:[
+        {text:"Reciprocal behavior can be motivated not only by norms but also by different factors such as emotions and strategic considerations.", source:"Wörle, M., Paulus, M., Journal of Experimental Child Psychology, 2019"},
+        {text:"Reciprocity has long been recognized as a universal cornerstone of morality, rational choice, and group life. Political scientists have shown that reciprocal behavioural strategies may lead in the long run to the highest level of outcomes.", source:"Buunk, B.P., Schaufeli, W.B., European Review of Social Psychology, 1999"},
+        {text:"Err on the side of generosity. Not because you want something in return. Banking on reciprocity is a recipe for manipulation. Be generous because you're human and you care.", source:"Richie Norton, author and influencer"},
+        {text:"Reciprocity: a situation or relationship in which two people or groups agree to do something similar to each other, to allow each other to have the same rights.", source:"The Britannica Dictionary"},
+        {text:"Friendship — my definition — is built on two things. Respect and trust. Both elements have to be there. And it has to be mutual.", source:"Stieg Larsson, The Girl with the Dragon Tattoo, 2008"}
+      ],
+      questions:[
+        {q:"What criteria did you use to select the most relevant information for your talk? Why?", quoteRef:null},
+        {q:"What can you infer from Norton's quote?", quoteRef:{text:"Err on the side of generosity. Not because you want something in return. Banking on reciprocity is a recipe for manipulation. Be generous because you're human and you care.", source:"Richie Norton, author and influencer"}},
+        {q:"To what extent can reciprocity in a professional setting be different from personal friendships?", quoteRef:null}
+      ]
+    },
+    {
+      num:"7", topic:"Cooperation and Relationships",
+      quotes:[
+        {text:"My model for business is The Beatles. They were four guys who kept each other's kind of negative tendencies in check. They balanced each other and the total was greater than the sum of the parts. Great things in business are never done by one person, they're done by a team of people.", source:"Steve Jobs, former CEO of Apple"},
+        {text:"Everything you want in life is a relationship away.", source:"Idowu Koyenikan, Wealth for All, 2016"},
+        {text:"Networking is not about just connecting people. It's about connecting people with people, people with ideas, and people with opportunities.", source:"Michele Jennae, Founder of influenSPHERE"},
+        {text:"Competition increases performance, but collaboration increases learning.", source:"Marvin Marshall, Discipline Without Stress, 2007"},
+        {text:"70% of college students believe networking is crucial for their future careers. 7 out of 10 recent graduates used campus networking events to make valuable connections.", source:"Gitnux Marketdata Report 2024"}
+      ],
+      questions:[
+        {q:"What criteria did you use to select the most relevant information for your talk? Why?", quoteRef:null},
+        {q:"What can you infer from Marshall's quote?", quoteRef:{text:"Competition increases performance, but collaboration increases learning.", source:"Marvin Marshall, Discipline Without Stress, 2007"}},
+        {q:"What are the conditions of successful cooperation?", quoteRef:null}
+      ]
+    },
+    {
+      num:"8", topic:"Freedom of Opinion",
+      quotes:[
+        {text:"Everyone has the right to freedom of opinion and expression; this right includes the freedom to hold opinions without interference and to seek, receive and impart information and ideas through any media and regardless of frontiers.", source:"United Nations, Universal Declaration of Human Rights"},
+        {text:"Words are, in my not-so-humble opinion, our most inexhaustible source of magic. Capable of both inflicting injury, and remedying it.", source:"Albus Dumbledore in Harry Potter and the Deathly Hallows (J.K. Rowling)"},
+        {text:"Much might be said on the impossibility of fixing where these supposed bounds are to be placed… the free expression of all opinions should be permitted, on condition that the manner be temperate, and do not pass the bounds of fair discussion.", source:"John Stuart Mill, On Liberty, 1859"},
+        {text:"Freedom of speech applies to ideas of all kinds, including those that may be deeply offensive. While international law protects free speech, there are instances where speech can be legitimately restricted — such as when it violates the rights of others, or advocates hatred and incites discrimination or violence.", source:"Amnesty International, Freedom of Expression"},
+        {text:"According to a March 2022 survey in the United States, 80% of respondents agreed that the Internet makes it easier for people to share their views with a large number of people. Almost half agreed that the Internet should be a free speech zone where speech should be uncensored.", source:"statista.com"}
+      ],
+      questions:[
+        {q:"What criteria did you use to select the most relevant information for your talk? Why?", quoteRef:null},
+        {q:"What does the quote from Harry Potter imply?", quoteRef:{text:"Words are, in my not-so-humble opinion, our most inexhaustible source of magic. Capable of both inflicting injury, and remedying it.", source:"Albus Dumbledore in Harry Potter and the Deathly Hallows (J.K. Rowling)"}},
+        {q:"What responsibilities come with the right to express opinions freely?", quoteRef:null}
+      ]
+    },
+    {
+      num:"9", topic:"Conformity",
+      quotes:[
+        {text:"Conformity refers to the act of matching attitudes, beliefs, and behaviours to group norms. Normative conformity occurs when individuals conform to be liked or accepted by others, while informational conformity happens when individuals look to others to guide their behaviour in uncertain situations.", source:"psychologytoday.com"},
+        {text:"To be yourself in a world that is constantly trying to make you something else is the greatest accomplishment.", source:"Ralph Waldo Emerson (1803–1882), American essayist"},
+        {text:"Most people are not even aware of their need to conform. They live under the illusion that they follow their own ideas and inclinations, that they are individualists — and that it just happens that their ideas are the same as those of the majority.", source:"Erich Fromm, The Art of Loving, 1956"},
+        {text:"Conformity has been necessary for us to survive. The human race would not have developed without the willingness of individuals to sacrifice their differences to create cultures that supported their survival need.", source:"sensitiveevolution.com"},
+        {text:"Never be limited by other people's limited imaginations. If you adopt their attitudes, then the possibility won't exist because you'll have already shut it out. You can hear other people's wisdom, but you've got to re-evaluate the world for yourself.", source:"Mae C. Jemison, doctor, engineer, and NASA astronaut"}
+      ],
+      questions:[
+        {q:"What criteria did you use to select the most relevant information for your talk? Why?", quoteRef:null},
+        {q:"What issue does Emerson's quote raise?", quoteRef:{text:"To be yourself in a world that is constantly trying to make you something else is the greatest accomplishment.", source:"Ralph Waldo Emerson (1803–1882), American essayist"}},
+        {q:"Social media promote both 'being unique' and following trends. How does this paradox shape young people's identity?", quoteRef:null}
+      ]
+    },
+    {
+      num:"10", topic:"Generation Gap",
+      quotes:[
+        {text:"It's important to understand the motivations and reasoning behind each generation's characteristics. The reason that we divide humanity into these various generations is to drive understanding and insight, yet it often takes a negative turn that ends up with sweeping generalisations and division.", source:"Overcoming the generation gap"},
+        {text:"History has always seen some degree of generational differences. The term 'generation gap' came into wide use in the United States and Europe during the 1960s. It described the cultural differences between the baby boomers and their parents.", source:"Mendez, N., Encyclopedia of Aging and Public Health, 2008"},
+        {text:"Babies are unreasonable; they expect far too much of existence. Each new generation that comes takes one look at the world and thinks wildly, 'Is this all they've done to it?' and bursts into tears.", source:"Clarence Day, The Crow's Nest, 1921"},
+        {text:"The young man pities his elders, fearing the day he, too, will join their ranks. The elderly man pities the younger generation, well-knowing the trials and tribulations that lie ahead of them.", source:"Lynda I Fisher, author"},
+        {text:"Every generation imagines itself to be more intelligent than the one that went before it, and wiser than the one that comes after it.", source:"George Orwell, English novelist"}
+      ],
+      questions:[
+        {q:"What criteria did you use to select the most relevant information for your talk? Why?", quoteRef:null},
+        {q:"What issue does Orwell's quote raise?", quoteRef:{text:"Every generation imagines itself to be more intelligent than the one that went before it, and wiser than the one that comes after it.", source:"George Orwell, English novelist"}},
+        {q:"To what extent do you agree that the problem of generation gap could be resolved?", quoteRef:null}
+      ]
+    },
+    {
+      num:"11", topic:"Stories",
+      quotes:[
+        {text:"Story is a sacred visualization, a way of echoing experience. There are lessons along the way.", source:"Terry Tempest Williams, Pieces of White Shell, 1987"},
+        {text:"Every good story is of course both a picture and an idea, and the more they are interfused, the better.", source:"Henry James, American-British author"},
+        {text:"We read books to find out who we are. A person who had never listened to nor read a tale or myth or parable or story, would remain ignorant of his own emotional and spiritual heights and depths, would not know quite fully what it is to be human.", source:"Ursula K. Le Guin, The Language of the Night, 1979"},
+        {text:"The most powerful words in English are 'tell me a story,' words that are intimately related to the complexity of history, the origins of language, the continuity of the species, the taproot of our humanity, our singularity, and art itself.", source:"Pat Conroy, My Reading Life, 2010"},
+        {text:"62% of Instagram users say they have become more interested in a brand or product after seeing it in Stories. Instagram Stories' share of total posting on the platform increased by 21% between 2019 and 2020.", source:"Gitnux Marketdata Report 2024"}
+      ],
+      questions:[
+        {q:"What criteria did you use to select the most relevant information for your talk? Why?", quoteRef:null},
+        {q:"What can you infer from Le Guin's quote?", quoteRef:{text:"We read books to find out who we are. A person who had never listened to nor read a tale or myth or parable or story, would remain ignorant of his own emotional and spiritual heights and depths, would not know quite fully what it is to be human.", source:"Ursula K. Le Guin, The Language of the Night: Essays on Fantasy and Science Fiction, 1979"}},
+        {q:"How can technological advances change the art of storytelling?", quoteRef:null}
+      ]
+    },
+    {
+      num:"12", topic:"Art and Science",
+      quotes:[
+        {text:"By staying within the borders of STEM, are we overlooking connections between the arts and innovative science? Are we missing an important opportunity to inspire and inform nonscientists?", source:"Gurnon D, Voss-Andreae J, Stanley J, PLoS Biol., 2013"},
+        {text:"Students who receive an arts education are four times more likely to be recognized for academic achievement, and those engaged in arts classes increase their critical thinking ability by 72%.", source:"Gitnux Marketdata Report 2024"},
+        {text:"I've never believed that they're separate. Leonardo da Vinci was a great artist and a great scientist. The finest dozen computer scientists I know are all musicians. I don't believe that the best people in any of these fields see themselves as one branch of a forked tree.", source:"Steve Jobs, Time, October 10, 1999"},
+        {text:"The truths of Science become more meaningful and more beautiful when analyzed and explained; exactly the reverse occurs with the truths of Art.", source:"Boris Glikman, writer, poet and philosopher"},
+        {text:"Every science begins as philosophy and ends as art.", source:"Will Durant, The Story of Philosophy, 1926"}
+      ],
+      questions:[
+        {q:"What criteria did you use to select the most relevant information for your talk? Why?", quoteRef:null},
+        {q:"How do you interpret Glikman's quote?", quoteRef:{text:"The truths of Science become more meaningful and more beautiful when analyzed and explained; exactly the reverse occurs with the truths of Art.", source:"Boris Glikman, writer, poet and philosopher"}},
+        {q:"Which is likely to be affected more by technological advances, arts or sciences? Why?", quoteRef:null}
+      ]
+    }
+  ]
+};
+
+// ── STATE ──────────────────────────────────────────
+let currentMode = null;
+let currentPaper = null;
+let prepInterval = null, talkInterval = null, qaonlyInterval = null;
+let prepLeft = 1200, talkLeft = 300, qaonlyLeft = 90;
+let currentQIndex = 0;
+
+// ── SCREENS ────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+function clearAll() {
+  clearInterval(prepInterval); clearInterval(talkInterval); clearInterval(qaonlyInterval);
+  prepInterval = talkInterval = qaonlyInterval = null;
+}
+function goMode() { clearAll(); showScreen('mode'); }
+function goSelect() { clearAll(); showScreen('select'); }
+
+// ── MODE & SELECT ──────────────────────────────────
+function setMode(m) {
+  currentMode = m;
+  document.getElementById('mode-badge').textContent = m === 'full' ? '🎙 Full Simulation' : '💬 Q&A Only';
+  buildSelectGrids();
+  showScreen('select');
+}
+
+function buildSelectGrids() {
+  ['2024','2025'].forEach(year => {
+    const g = document.getElementById('grid-' + year);
+    g.innerHTML = '';
+    PAPERS[year].forEach((p, i) => {
+      const c = document.createElement('div');
+      c.className = 'paper-card';
+      c.innerHTML = `<div class="pc-num">${year} · Paper ${p.num}</div><div class="pc-topic">${p.topic}</div>`;
+      c.onclick = () => startPaper(year, i);
+      g.appendChild(c);
+    });
+  });
+}
+
+function startPaper(year, idx) {
+  clearAll();
+  currentPaper = PAPERS[year][idx];
+  currentQIndex = 0;
+  if (currentMode === 'full') { setupPrep(); showScreen('prep'); }
+  else { setupQAOnly(); showScreen('qaonly'); }
+}
+
+// ── PREP ───────────────────────────────────────────
+function setupPrep() {
+  document.getElementById('prep-topic').textContent = currentPaper.topic;
+  const qg = document.getElementById('prep-quotes');
+  qg.innerHTML = '';
+  currentPaper.quotes.forEach(q => {
+    const d = document.createElement('div');
+    d.className = 'quote-item';
+    d.innerHTML = `${q.text}<div class="qi-source">— ${q.source}</div>`;
+    qg.appendChild(d);
+  });
+  prepLeft = 1200;
+  renderPrepClock();
+  document.getElementById('btn-start-prep').style.display = 'inline-flex';
+  document.getElementById('btn-ready-talk').style.display = 'none';
+}
+function renderPrepClock() {
+  const m = Math.floor(prepLeft/60), s = prepLeft%60;
+  const el = document.getElementById('prep-clock');
+  el.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  el.className = 'timer-clock' + (prepLeft<=120?' urgent':prepLeft<=300?' warn':'');
+  document.getElementById('prep-bar').style.width = (prepLeft/1200*100)+'%';
+}
+document.getElementById('btn-start-prep').addEventListener('click', () => {
+  document.getElementById('btn-start-prep').style.display = 'none';
+  document.getElementById('btn-ready-talk').style.display = 'inline-flex';
+  prepInterval = setInterval(() => { prepLeft--; renderPrepClock(); if(prepLeft<=0){clearInterval(prepInterval);goTalk();} }, 1000);
+});
+
+// ── TALK ───────────────────────────────────────────
+function goTalk() {
+  clearInterval(prepInterval);
+  document.getElementById('talk-topic').textContent = currentPaper.topic;
+  talkLeft = 300; renderTalkClock();
+  showScreen('talk');
+  talkInterval = setInterval(() => { talkLeft--; renderTalkClock(); if(talkLeft<=0){clearInterval(talkInterval);goQA();} }, 1000);
+}
+function renderTalkClock() {
+  const m = Math.floor(talkLeft/60), s = talkLeft%60;
+  const el = document.getElementById('talk-clock');
+  el.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  el.className = 'timer-clock' + (talkLeft<=30?' urgent':talkLeft<=60?' warn':'');
+  const bar = document.getElementById('talk-bar');
+  bar.style.width = (talkLeft/300*100)+'%';
+  bar.style.background = talkLeft<=30?'var(--red)':talkLeft<=60?'var(--amber)':'var(--sage)';
+}
+
+// ── Q&A FULL MODE ──────────────────────────────────
+function goQA() { clearInterval(talkInterval); currentQIndex=0; showScreen('qa'); renderQ(); }
+
+function renderQ() {
+  const total = currentPaper.questions.length;
+  const qObj = currentPaper.questions[currentQIndex];
+
+  let refHtml = '';
+  if (qObj.quoteRef) {
+    refHtml = `<div class="q-quote-ref">
+      <div class="qr-label">Referenced quote</div>
+      <div class="qr-text">"${qObj.quoteRef.text}"</div>
+      <div class="qr-source">— ${qObj.quoteRef.source}</div>
+    </div>`;
+  }
+
+  document.getElementById('qa-slot').innerHTML = `
+    <div class="q-card">
+      <div class="q-num">Question ${currentQIndex+1} of ${total}</div>
+      <div class="q-text">${qObj.q}</div>
+      ${refHtml}
+    </div>`;
+
+  const btn = document.getElementById('btn-next-q');
+  const hint = document.getElementById('qa-nav-hint');
+  if (currentQIndex < total-1) {
+    btn.textContent = 'Next Question →';
+    btn.className = 'btn btn-sage';
+    hint.textContent = `Question ${currentQIndex+2} of ${total} follows`;
+  } else {
+    btn.textContent = 'Finish Practice ✓';
+    btn.className = 'btn btn-primary';
+    hint.textContent = '';
+  }
+}
+
+function nextQuestion() {
+  if (currentQIndex < currentPaper.questions.length-1) { currentQIndex++; renderQ(); window.scrollTo(0,0); }
+  else showScreen('done');
+}
+
+// ── Q&A ONLY MODE ──────────────────────────────────
+function setupQAOnly() {
+  document.getElementById('qaonly-topic').textContent = currentPaper.topic;
+  const list = document.getElementById('qaonly-list');
+  list.innerHTML = '';
+  currentPaper.questions.forEach((qObj, i) => {
+    const item = document.createElement('div');
+    item.className = 'qaonly-item';
+    let refHtml = '';
+    if (qObj.quoteRef) {
+      refHtml = `<div class="q-quote-ref" style="margin-top:0.85rem">
+        <div class="qr-label">Referenced quote</div>
+        <div class="qr-text">"${qObj.quoteRef.text}"</div>
+        <div class="qr-source">— ${qObj.quoteRef.source}</div>
+      </div>`;
+    }
+    item.innerHTML = `<div class="qi-num-label">Question ${i+1}</div><div class="qi-q-text">${qObj.q}</div>${refHtml}`;
+    list.appendChild(item);
+  });
+  clearInterval(qaonlyInterval);
+  qaonlyLeft = 90; renderQAOnlyClock();
+  const btn = document.getElementById('btn-qaonly-start');
+  btn.textContent = '▶ Start'; btn.disabled = false;
+  document.getElementById('qaonly-hint').textContent = 'Press Start when you begin answering. Reset between questions.';
+}
+function startQAOnlyTimer() {
+  clearInterval(qaonlyInterval);
+  qaonlyLeft = 90; renderQAOnlyClock();
+  document.getElementById('btn-qaonly-start').disabled = true;
+  document.getElementById('qaonly-hint').textContent = 'Speaking…';
+  qaonlyInterval = setInterval(() => {
+    qaonlyLeft--; renderQAOnlyClock();
+    if (qaonlyLeft <= 0) {
+      clearInterval(qaonlyInterval);
+      document.getElementById('qaonly-hint').textContent = 'Time is up! Reset for the next question.';
+      const btn = document.getElementById('btn-qaonly-start');
+      btn.disabled = false; btn.textContent = '▶ Start again';
+    }
+  }, 1000);
+}
+function resetQAOnlyTimer() {
+  clearInterval(qaonlyInterval);
+  qaonlyLeft = 90; renderQAOnlyClock();
+  const btn = document.getElementById('btn-qaonly-start');
+  btn.disabled = false; btn.textContent = '▶ Start';
+  document.getElementById('qaonly-hint').textContent = 'Press Start when you begin answering. Reset between questions.';
+}
+function renderQAOnlyClock() {
+  const m = Math.floor(qaonlyLeft/60), s = qaonlyLeft%60;
+  const el = document.getElementById('qaonly-clock');
+  el.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  el.className = 'qa-clock' + (qaonlyLeft<=15?' urgent':qaonlyLeft<=30?' warn':'');
+  const bar = document.getElementById('qaonly-bar');
+  bar.style.width = (qaonlyLeft/90*100)+'%';
+  bar.style.background = qaonlyLeft<=15?'var(--red)':'var(--amber)';
+}
+
+// ── BOOT ───────────────────────────────────────────
+buildSelectGrids();
+</script>
+</body>
+</html>

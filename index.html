@@ -139,11 +139,36 @@ header p{margin-top:.5rem;font-size:.88rem;color:var(--muted);}
 .level-badge{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;display:inline-block;padding:.2rem .6rem;border-radius:20px;margin-left:.4rem;}
 .level-badge.al{background:var(--ink);color:var(--amber);}
 .level-badge.ol{background:var(--sage);color:#fff;}
+/* SAMPLE ANSWER */
+.sa-disclaimer{background:#fff8ee;border:1.5px solid #f0d9a8;border-radius:8px;padding:.8rem 1.1rem;margin-bottom:1.1rem;font-size:.8rem;color:var(--muted);line-height:1.6;}
+.sa-legend{display:flex;gap:.7rem;flex-wrap:wrap;margin-bottom:1rem;}
+.sa-legend-item{display:flex;align-items:center;gap:.4rem;font-size:.75rem;font-family:'DM Mono',monospace;}
+.sa-legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.sa-task{background:var(--paper);border:1.5px solid var(--dust);border-radius:8px;padding:.9rem 1.1rem;margin-bottom:1.1rem;font-size:.85rem;line-height:1.65;color:var(--ink);}
+.sa-controls{display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;}
+.sa-counter{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted);letter-spacing:.1em;}
+.sa-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;}
+.sa-text-col{font-size:.88rem;line-height:1.8;color:var(--ink);}
+.sa-part{border-radius:3px;padding:1px 3px;transition:background .3s;}
+.sa-part.good{background:#e6f2eb;}
+.sa-part.partial{background:#fdf0e0;}
+.sa-part.weak{background:#faeaea;}
+.sa-ann-col{display:flex;flex-direction:column;gap:.5rem;}
+.sa-ann{display:none;border-radius:6px;padding:.5rem .75rem;font-size:.78rem;line-height:1.5;}
+.sa-ann.visible{display:block;}
+.sa-ann.good{background:#e6f2eb;color:#2a5e3a;}
+.sa-ann.partial{background:#fdf0e0;color:#7a4e15;}
+.sa-ann.weak{background:#faeaea;color:#7a2a2a;}
+.sa-ann-label{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.2rem;opacity:.8;}
+.btn-sample{display:inline-flex;align-items:center;gap:.4rem;padding:.45rem 1rem;border-radius:6px;font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border:1.5px solid var(--dust);background:var(--paper);color:var(--muted);transition:all .18s;}
+.btn-sample:hover{border-color:var(--ink);color:var(--ink);}
+.btn-sample.coming{opacity:.4;cursor:not-allowed;}
 @media(max-width:600px){
   .two-grid,.ol-sources-grid{grid-template-columns:1fr;}
   .quotes-grid{grid-template-columns:1fr;}
   .timer-clock{font-size:3rem;}
   .select-grid{grid-template-columns:1fr 1fr;}
+  .sa-grid{grid-template-columns:1fr;}
 }
 </style>
 </head>
@@ -152,7 +177,7 @@ header p{margin-top:.5rem;font-size:.88rem;color:var(--muted);}
 <header>
   <div class="hdr-label">Latvian CE · English</div>
   <h1>Speaking Practice</h1>
-  <p>Choose your exam level, a mode, and a paper</p>
+  <p style="margin-top:.6rem;font-size:.78rem;color:var(--muted);line-height:1.6;max-width:640px;margin-left:auto;margin-right:auto">This resource was developed using official Latvian CE exam papers published by VIAA/VISC. AI assistance was used in developing practice content and may contain inaccuracies. The creator of this resource accepts no responsibility for errors or omissions. For authoritative exam preparation, refer to official VIAA materials at <a href="https://viaa.gov.lv" style="color:var(--amber)">viaa.gov.lv</a>.</p>
 </header>
 
 <!-- LEVEL SELECT -->
@@ -290,6 +315,7 @@ header p{margin-top:.5rem;font-size:.88rem;color:var(--muted);}
   <div class="btn-row" style="margin-bottom:1.2rem">
     <button class="btn btn-ghost btn-sm" onclick="goSelect()">← Choose another paper</button>
   </div>
+  <div id="qaonly-sample-slot"></div>
   <div class="topic-banner">
     <div class="tb-label">Q &amp; A Practice</div>
     <h2 id="qaonly-topic"></h2>
@@ -307,6 +333,33 @@ header p{margin-top:.5rem;font-size:.88rem;color:var(--muted);}
     </div>
     <div class="progress-bar"><div class="progress-fill" id="qaonly-bar" style="width:100%"></div></div>
     <div class="nav-hint" id="qaonly-hint" style="text-align:left">Press Start when you begin answering. Reset between questions.</div>
+  </div>
+</div>
+
+<!-- SAMPLE ANSWER -->
+<div class="screen" id="screen-sample">
+  <div class="btn-row" style="margin-bottom:1.2rem">
+    <button class="btn btn-ghost btn-sm" onclick="goSampleBack()">← Back to Q&amp;A</button>
+  </div>
+  <div class="topic-banner">
+    <div class="tb-label">Sample Answer</div>
+    <h2 id="sa-topic"></h2>
+  </div>
+  <div class="sa-disclaimer">This model answer was generated with AI assistance and edited for pedagogical purposes. It is intended as a learning tool, not a perfect exam answer.</div>
+  <div class="sa-legend">
+    <div class="sa-legend-item"><div class="sa-legend-dot" style="background:#7ebc95"></div><span>works well</span></div>
+    <div class="sa-legend-item"><div class="sa-legend-dot" style="background:#d4a056"></div><span>underdeveloped</span></div>
+    <div class="sa-legend-item"><div class="sa-legend-dot" style="background:#c98080"></div><span>missing or ineffective</span></div>
+  </div>
+  <div class="sa-task"><strong>Before you reveal:</strong> Read the text below. For each part of the talk, consider — what function does it serve, and how well does it do its job? Then reveal the annotations one by one to check.</div>
+  <div class="sa-controls">
+    <button class="btn btn-primary btn-sm" id="btn-sa-reveal" onclick="saRevealNext()">Reveal</button>
+    <span class="sa-counter" id="sa-counter">0 / 0</span>
+    <button class="btn btn-ghost btn-sm" onclick="saReset()">↺ Start over</button>
+  </div>
+  <div class="sa-grid">
+    <div class="sa-text-col" id="sa-text-col"></div>
+    <div class="sa-ann-col" id="sa-ann-col"></div>
   </div>
 </div>
 
@@ -847,6 +900,18 @@ function nextQuestion(){
 // ══════════════════════════════════════════════════════════
 function setupQAOnlyScreen(){
   document.getElementById('qaonly-topic').textContent=currentPaper.topic;
+
+  // Sample answer button (OL only)
+  const slot=document.getElementById('qaonly-sample-slot');
+  if(currentLevel==='ol'){
+    const key=getSampleKey();
+    const hasSample=!!SAMPLE_ANSWERS[key];
+    slot.innerHTML=hasSample
+      ?`<div style="margin-bottom:1.1rem"><button class="btn-sample" onclick="openSampleAnswer()">📄 View sample answer</button></div>`
+      :`<div style="margin-bottom:1.1rem"><button class="btn-sample coming" disabled>📄 Sample answer — coming soon</button></div>`;
+  } else {
+    slot.innerHTML='';
+  }
   const list=document.getElementById('qaonly-list');
   list.innerHTML='';
   const total=currentPaper.questions.length||3;
@@ -940,6 +1005,79 @@ function getHint(question){
     return `<strong>State your position clearly</strong>, then defend it. Consider: who benefits? who is responsible? what are the risks of not acting? A good answer also acknowledges the strongest counterargument before rebutting it.`;
   return `<strong>State your position clearly first.</strong> Then give 2–3 developed reasons — not a list, but an argument. Use examples where you can. 4–5 well-developed sentences is better than 8 rushed ones.`;
 }
+
+// ══════════════════════════════════════════════════════════
+// SAMPLE ANSWERS
+// ══════════════════════════════════════════════════════════
+const SAMPLE_ANSWERS={
+  'ol-2025-5':{
+    topic:'Summer Jobs',
+    parts:[
+      {text:"Today I would like to talk about summer jobs and their role in the lives of young people.",label:"Introduces the topic",quality:'good'},
+      {text:"The issue raised in both sources is whether working during the summer months is genuinely beneficial for teenagers, or whether it is a tradition that is slowly disappearing.",label:"Formulates the issue",quality:'good'},
+      {text:"Source 1 argues that summer jobs teach young people essential values such as diligence, reliability and commitment, while Source 2 highlights that the number of teenagers in employment during summer has dropped significantly — from around 60% in the 1970s to just 35% by 2016.",label:"Compares the sources",quality:'good'},
+      {text:"Where Source 1 focuses on what is gained from the experience, Source 2 shows that fewer young people are actually having it in the first place.",label:"Draws a contrast between the two sources",quality:'good'},
+      {text:"Having considered both sources, I agree that summer jobs remain genuinely beneficial for teenagers, despite the decline in their popularity.",label:"States opinion clearly, linked to the issue",quality:'good'},
+      {text:"My first point is that a summer job gives teenagers something that school simply cannot — real, practical responsibility.",label:"Argument 1 — point stated",quality:'good'},
+      {text:"When a teenager is required to show up on time, follow instructions from a manager and deal with customers or colleagues, they are exposed to how workplaces actually function.",label:"Argument 1 — explained",quality:'good'},
+      {text:"Take, for example, a student who spends the summer working in a café or a supermarket — by the end of it, they have learned to handle pressure, manage their time and communicate with people they would never otherwise meet.",label:"Argument 1 — concrete example",quality:'good'},
+      {text:"This experience is particularly valuable because it cannot be replicated in a classroom. A student who has worked arrives at their first permanent job having already made their early mistakes in a lower-stakes environment, which makes the transition significantly easier.",label:"Argument 1 — why it matters, linked back to the issue",quality:'good'},
+      {text:"My second point is that working during the summer also teaches young people about the value of money.",label:"Argument 2 — point stated",quality:'good'},
+      {text:"Earning a salary, even a small one, changes the way teenagers think about spending and saving. When young people have to work for what they have, they tend to become more thoughtful about their financial decisions.",label:"Argument 2 — explained, but drifting away from the issue",quality:'partial'},
+      {text:"This is an important quality to develop, as managing money responsibly is something that will be relevant throughout their lives.",label:"No concrete example. No link back to the issue.",quality:'weak'},
+      {text:"In conclusion, both sources show that while summer employment is becoming less common, the benefits it offers have not diminished.",label:"Conclusion — summary",quality:'good'},
+      {text:"The practical responsibility that comes with holding down a job is an experience that shapes young people in lasting ways.",label:"Refers back to Argument 1 only — Argument 2 is absent from the conclusion",quality:'partial'},
+      {text:"It is worth asking ourselves whether young people today are missing out on something that previous generations took for granted.",label:"Final broader thought",quality:'good'}
+    ]
+  }
+};
+
+let saIndex=0,saTotal=0,saPaperKey=null;
+
+function getSampleKey(){
+  return currentLevel==='ol'&&currentPaper?`ol-${currentPaper._year}-${currentPaper.num}`:null;
+}
+
+function openSampleAnswer(){
+  const key=getSampleKey();
+  const sa=SAMPLE_ANSWERS[key];
+  if(!sa) return;
+  saPaperKey=key; saIndex=0; saTotal=sa.parts.length;
+  document.getElementById('sa-topic').textContent=sa.topic;
+  document.getElementById('sa-counter').textContent=`0 / ${saTotal}`;
+  document.getElementById('btn-sa-reveal').textContent='Reveal';
+  document.getElementById('btn-sa-reveal').disabled=false;
+  document.getElementById('sa-text-col').innerHTML=sa.parts.map((p,i)=>
+    `<span class="sa-part" id="sa-part-${i}">${escH(p.text)} </span>`).join('');
+  document.getElementById('sa-ann-col').innerHTML=sa.parts.map((p,i)=>
+    `<div class="sa-ann ${p.quality}" id="sa-ann-${i}"><div class="sa-ann-label">${escH(p.label)}</div></div>`).join('');
+  showScreen('sample');
+}
+
+function saRevealNext(){
+  const sa=SAMPLE_ANSWERS[saPaperKey];
+  if(!sa||saIndex>=saTotal) return;
+  document.getElementById(`sa-part-${saIndex}`).classList.add(sa.parts[saIndex].quality);
+  document.getElementById(`sa-ann-${saIndex}`).classList.add('visible');
+  saIndex++;
+  document.getElementById('sa-counter').textContent=`${saIndex} / ${saTotal}`;
+  if(saIndex>=saTotal){document.getElementById('btn-sa-reveal').textContent='All revealed';document.getElementById('btn-sa-reveal').disabled=true;}
+}
+
+function saReset(){
+  const sa=SAMPLE_ANSWERS[saPaperKey];
+  if(!sa) return;
+  saIndex=0;
+  document.getElementById('sa-counter').textContent=`0 / ${saTotal}`;
+  document.getElementById('btn-sa-reveal').textContent='Reveal';
+  document.getElementById('btn-sa-reveal').disabled=false;
+  sa.parts.forEach((_,i)=>{
+    document.getElementById(`sa-part-${i}`).className='sa-part';
+    document.getElementById(`sa-ann-${i}`).classList.remove('visible');
+  });
+}
+
+function goSampleBack(){showScreen('qaonly');}
 
 // ══════════════════════════════════════════════════════════
 // BOOT

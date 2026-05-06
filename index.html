@@ -232,11 +232,35 @@ header p{margin-top:.5rem;font-size:.88rem;color:var(--muted);}
     <button class="btn btn-ghost btn-sm" onclick="goMode()">← Change mode</button>
     <span id="select-badge"></span>
   </div>
+  <div class="big-card" onclick="randomisePaper()" style="margin-bottom:1.5rem;border-color:var(--amber);display:flex;align-items:center;gap:1.2rem;padding:1.2rem 1.4rem">
+    <span style="font-size:2rem">🎲</span>
+    <div><div class="bc-title" style="margin-bottom:.2rem">Randomise</div><div class="bc-desc">Let the tool pick a paper for you — no choosing allowed.</div></div>
+  </div>
   <div id="select-year-sections"></div>
+</div>
+
+<!-- RANDOM REVEAL -->
+<div class="screen" id="screen-random">
+  <div class="btn-row" style="margin-bottom:1.5rem">
+    <button class="btn btn-ghost btn-sm" onclick="goSelect()">← Back to papers</button>
+  </div>
+  <div class="topic-banner" style="text-align:center">
+    <div class="tb-label">Your paper is</div>
+    <h2 id="rand-topic" style="margin:.4rem 0"></h2>
+    <div style="font-family:'DM Mono',monospace;font-size:.72rem;color:rgba(255,255,255,.6);margin-top:.4rem" id="rand-meta"></div>
+  </div>
+  <div class="btn-row" style="justify-content:center;margin-top:1.5rem;gap:1rem">
+    <button class="btn btn-primary" onclick="startRandomPaper()">Start →</button>
+    <button class="btn btn-amber" onclick="randomisePaper()">🎲 Re-roll</button>
+    <button class="btn btn-ghost" onclick="goSelect()">← Choose manually</button>
+  </div>
 </div>
 
 <!-- PREP -->
 <div class="screen" id="screen-prep">
+  <div class="btn-row" style="margin-bottom:.8rem">
+    <button class="btn btn-ghost btn-sm" onclick="goSelect()">← Back to papers</button>
+  </div>
   <div class="stage-pills">
     <div class="stage-pill active">Preparation</div>
     <div class="stage-pill">Talk</div>
@@ -275,6 +299,9 @@ header p{margin-top:.5rem;font-size:.88rem;color:var(--muted);}
     <div class="stage-pill active">Talk</div>
     <div class="stage-pill">Q &amp; A</div>
   </div>
+  <div class="btn-row" style="margin-bottom:.8rem">
+    <button class="btn btn-ghost btn-sm" onclick="setupPrepScreen();showScreen('prep')">← Back to Preparation</button>
+  </div>
   <div class="topic-banner">
     <div class="tb-label" id="talk-label">Speak for 5 minutes on</div>
     <h2 id="talk-topic"></h2>
@@ -302,6 +329,9 @@ header p{margin-top:.5rem;font-size:.88rem;color:var(--muted);}
 
 <!-- Q&A FULL -->
 <div class="screen" id="screen-qa">
+  <div class="btn-row" style="margin-bottom:.8rem">
+    <button class="btn btn-ghost btn-sm" onclick="clearInterval(talkInterval);showScreen('talk')">← Back to Talk</button>
+  </div>
   <div class="stage-pills">
     <div class="stage-pill done">Preparation ✓</div>
     <div class="stage-pill done">Talk ✓</div>
@@ -1095,6 +1125,27 @@ function saReset(){
 }
 
 function goSampleBack(){showScreen(saOriginScreen==='talk'?'talk':saOriginScreen==='qa'?'qa':'prep');}
+
+// ── RANDOMISER ─────────────────────────────────────────
+let randYear=null,randIdx=null;
+
+function randomisePaper(){
+  const data=currentLevel==='al'?AL:OL;
+  const years=Object.keys(data);
+  const all=[];
+  years.forEach(y=>data[y].forEach((_,i)=>all.push({year:y,idx:i})));
+  const pick=all[Math.floor(Math.random()*all.length)];
+  randYear=pick.year; randIdx=pick.idx;
+  const paper=data[pick.year][pick.idx];
+  document.getElementById('rand-topic').textContent=paper.topic;
+  document.getElementById('rand-meta').textContent=`${pick.year} · Paper ${paper.num} · ${currentLevel.toUpperCase()}`;
+  showScreen('random');
+}
+
+function startRandomPaper(){
+  if(randYear===null||randIdx===null) return;
+  startPaper(randYear,randIdx);
+}
 
 // ══════════════════════════════════════════════════════════
 // BOOT

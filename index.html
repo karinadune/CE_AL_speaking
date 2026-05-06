@@ -139,7 +139,19 @@ header p{margin-top:.5rem;font-size:.88rem;color:var(--muted);}
 .level-badge{font-family:'DM Mono',monospace;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;display:inline-block;padding:.2rem .6rem;border-radius:20px;margin-left:.4rem;}
 .level-badge.al{background:var(--ink);color:var(--amber);}
 .level-badge.ol{background:var(--sage);color:#fff;}
-/* SAMPLE ANSWER */
+/* PHRASE BANKS */
+.pb-toggle{display:inline-flex;align-items:center;gap:.3rem;margin-top:.55rem;font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border:none;background:transparent;color:var(--amber);padding:0;transition:opacity .15s;}
+.pb-toggle:hover{opacity:.65;}
+.phrase-bank{display:none;margin-top:.5rem;background:var(--cream);border-radius:6px;padding:.65rem .85rem;animation:fadeUp .2s ease;}
+.phrase-bank.open{display:block;}
+.pb-section{margin-bottom:.55rem;}
+.pb-section:last-child{margin-bottom:0;}
+.pb-section-title{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem;}
+.pb-phrase{font-size:.8rem;line-height:1.55;color:var(--ink);padding:.18rem 0;border-bottom:1px solid var(--dust);}
+.pb-phrase:last-child{border-bottom:none;}
+.pb-prompt{font-size:.8rem;line-height:1.55;color:var(--muted);font-style:italic;margin-bottom:.4rem;}
+.pb-words{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.45rem;}
+.pb-word{font-family:'DM Mono',monospace;font-size:.65rem;background:var(--paper);border:1px solid var(--dust);border-radius:4px;padding:.15rem .45rem;color:var(--ink);}
 .sa-disclaimer{background:#fff8ee;border:1.5px solid #f0d9a8;border-radius:8px;padding:.8rem 1.1rem;margin-bottom:1.1rem;font-size:.8rem;color:var(--muted);line-height:1.6;}
 .sa-legend{display:flex;gap:.7rem;flex-wrap:wrap;margin-bottom:1rem;}
 .sa-legend-item{display:flex;align-items:center;gap:.4rem;font-size:.75rem;font-family:'DM Mono',monospace;}
@@ -788,27 +800,119 @@ function setupPrepScreen(){
   if(ph) ph.textContent='💡 Talk Planner';
 }
 
+function togglePhrase(id,btn){
+  const bank=document.getElementById(id);
+  const isOpen=bank.classList.toggle('open');
+  btn.textContent=isOpen?'Hide phrases ‹':'Useful phrases ›';
+}
+
+function mkPb(id,sections){
+  const inner=sections.map(s=>{
+    if(s.prompt) return `<div class="pb-prompt">${s.prompt}</div>`;
+    if(s.words) return `<div class="pb-words">${s.words.map(w=>`<span class="pb-word">${w}</span>`).join('')}</div>`;
+    const title=s.title?`<div class="pb-section-title">${s.title}</div>`:'';
+    const phrases=s.phrases.map(p=>`<div class="pb-phrase">${p}</div>`).join('');
+    return `<div class="pb-section">${title}${phrases}</div>`;
+  }).join('');
+  return `<button class="pb-toggle" onclick="togglePhrase('${id}',this)">Useful phrases ›</button><div class="phrase-bank" id="${id}">${inner}</div>`;
+}
+
 function setupPlanner(isAL){
+  document.getElementById('planner-title').textContent='Talk Planner';
   if(isAL){
-    document.getElementById('planner-title').textContent='Talk Planner';
     document.getElementById('planner-dj').innerHTML='🎧 <strong>Be the DJ, not the karaoke singer.</strong> The sources are your tracks — mix them, don\'t perform them. Every point must answer: <em>so what?</em>';
     document.getElementById('planner-steps').innerHTML=`
-      <div class="scaffold-step"><span class="scaffold-step-num">Intro</span><span><strong>Name the topic and state your angle.</strong> Tell the listener what you'll argue and how you'll structure it.</span></div>
-      <div class="scaffold-step"><span class="scaffold-step-num">Pt 1</span><span><strong>Cue a source.</strong> Then mix in your own thinking — <em>what does it mean for the topic?</em></span></div>
-      <div class="scaffold-step"><span class="scaffold-step-num">Pt 2</span><span><strong>Cue a source.</strong> Then mix in your own thinking — <em>what does it mean for the topic?</em></span></div>
-      <div class="scaffold-step"><span class="scaffold-step-num">Pt 3</span><span><strong>Cue a source.</strong> Then mix in your own thinking — <em>what does it mean for the topic?</em></span></div>
-      <div class="scaffold-step"><span class="scaffold-step-num">End</span><span><strong>Pull it together.</strong> Give your overall judgement. What does this all mean? So what?</span></div>`;
+      <div class="scaffold-step"><span class="scaffold-step-num">Intro</span><div><strong>Introduce the topic and outline what you will cover.</strong>
+        ${mkPb('al-pb-intro',[
+          {title:'Introducing the topic',phrases:['Today I would like to discuss the topic of…','The topic I have been asked to present on is…','[Topic] is a subject that raises a number of important questions…','The materials provided explore the issue of…']},
+          {title:'Outlining the structure',prompt:'What job does each point do in your argument? Name the function — that becomes your outline.'},
+          {words:['to establish','to explain','to show','to argue','to compare','to question']},
+          {phrases:['In my talk I will examine [point 1], consider [point 2], and reflect on [point 3].','I will begin by looking at [point 1], before turning to [point 2], and finally addressing [point 3].']}
+        ])}
+      </div></div>
+      <div class="scaffold-step"><span class="scaffold-step-num">Pt 1</span><div><strong>Cue a source.</strong> Then mix in your own thinking — <em>what does it mean for the topic?</em>
+        ${mkPb('al-pb-pt1',[
+          {title:'Citing',phrases:['According to [source] by [author / publication]…','As [author] points out in [source]…','[Author / source] argues that…','The data provided by [source] suggests that…','[Source] highlights the fact that…']},
+          {title:'Analysing',phrases:['This suggests that…','What this reveals is…','This is significant because…','In other words…','This can be interpreted as…','The implication here is that…']},
+          {title:'Developing',phrases:['Furthermore…','Building on this…','To illustrate this further…','A clear example of this can be seen in…','This is further supported by…']},
+          {title:'Acknowledging complexity',phrases:['While it could be argued that…','However, one must also consider…','On the other hand…','Despite this…','It is worth noting that not everyone would agree…']}
+        ])}
+      </div></div>
+      <div class="scaffold-step"><span class="scaffold-step-num">Pt 2</span><div><strong>Cue a source.</strong> Then mix in your own thinking — <em>what does it mean for the topic?</em>
+        ${mkPb('al-pb-pt2',[
+          {title:'Bridging from previous point',phrases:['Moving on to my second point…','Having established that… I would now like to turn to…','Another aspect worth considering is…','This leads me to my next point…']},
+          {title:'Citing',phrases:['According to [source] by [author / publication]…','As [author] points out in [source]…','[Author / source] argues that…','The data provided by [source] suggests that…']},
+          {title:'Analysing',phrases:['This suggests that…','What this reveals is…','This is significant because…','The implication here is that…']},
+          {title:'Developing',phrases:['Furthermore…','Building on this…','To illustrate this further…','A clear example of this can be seen in…']},
+          {title:'Acknowledging complexity',phrases:['While it could be argued that…','However, one must also consider…','On the other hand…','Despite this…']}
+        ])}
+      </div></div>
+      <div class="scaffold-step"><span class="scaffold-step-num">Pt 3</span><div><strong>Cue a source.</strong> Then mix in your own thinking — <em>what does it mean for the topic?</em>
+        ${mkPb('al-pb-pt3',[
+          {title:'Bridging from previous point',phrases:['Moving on to my third and final point…','Having considered… I would now like to turn to…','A further aspect worth examining is…','This brings me to my final point…']},
+          {title:'Citing',phrases:['According to [source] by [author / publication]…','As [author] points out in [source]…','[Author / source] argues that…','The data provided by [source] suggests that…']},
+          {title:'Analysing',phrases:['This suggests that…','What this reveals is…','This is significant because…','The implication here is that…']},
+          {title:'Developing',phrases:['Furthermore…','Building on this…','To illustrate this further…','A clear example of this can be seen in…']},
+          {title:'Acknowledging complexity',phrases:['While it could be argued that…','However, one must also consider…','On the other hand…','Despite this…']}
+        ])}
+      </div></div>
+      <div class="scaffold-step"><span class="scaffold-step-num">End</span><div><strong>Pull it together. Give your overall judgement.</strong>
+        ${mkPb('al-pb-end',[
+          {title:'Step 1 — restate your position',phrases:['In conclusion, I have argued that…','To restate my position…','Throughout this talk I have maintained that…']},
+          {title:'Step 2 — echo your main points',phrases:['Through examining [point 1], [point 2] and [point 3], it is clear that…','Having considered [point 1], [point 2] and [point 3]…','The evidence from [source 1], [source 2] and [source 3] points to…']},
+          {title:'Step 3 — final broader thought',phrases:['What this ultimately reveals is…','The broader implication of this is…','This raises the important question of…','It is clear that this issue extends beyond… and affects…','Perhaps the most important takeaway is…']}
+        ])}
+      </div></div>`;
   } else {
-    document.getElementById('planner-title').textContent='Talk Planner';
     document.getElementById('planner-dj').innerHTML='🎧 <strong>Be the DJ, not the karaoke singer.</strong> Compare the sources — don\'t just retell them one by one. What do they reveal <em>together</em> about the issue?';
     document.getElementById('planner-steps').innerHTML=`
-      <div class="scaffold-step"><span class="scaffold-step-num">1. Intro</span><span><strong>Introduce the topic.</strong><br><em>Today I would like to talk about… / The topic I have been asked to discuss is… / To set the scene, let me briefly outline what I will cover…</em></span></div>
-      <div class="scaffold-step"><span class="scaffold-step-num">2. Issue</span><span><strong>Formulate the issue — the central question the sources explore.</strong> Not a problem, but a question worth answering.<br><em>Having read the materials, the issue I would like to address is… / The issue raised in both sources is… / Based on the materials provided, the central question is… / The sources raise the issue of… / Looking at the materials, one key question emerges:…</em></span></div>
-      <div class="scaffold-step"><span class="scaffold-step-num">3. Compare</span><span><strong>Compare the sources. Be the DJ — mix them, don't perform them.</strong><br><em>While Source 1 suggests…, Source 2 takes a different angle by… / Both sources agree that… however, they differ in… / Source 1 focuses on… whereas Source 2 highlights… / Interestingly, Source 2 challenges / supports what Source 1 claims by… / Taken together, these sources paint a picture of…</em></span></div>
-      <div class="scaffold-step"><span class="scaffold-step-num">4. Opinion</span><span><strong>State your opinion — agree, disagree, or divided.</strong><br><em>In my view… / Personally, I believe… / Having considered both sources, I would argue that… / I find myself agreeing with… because… / I disagree with the idea that… and here is why… / I can see merit on both sides — on one hand… on the other…</em></span></div>
-      <div class="scaffold-step"><span class="scaffold-step-num">5. Arg 1</span><span><strong>First argument — state your point, then explain, discuss and prove it with examples.</strong><br><em>My first point is that… / To illustrate this… / A clear example of this is… / This is supported by Source [1/2], which states that… / Furthermore… / Building on this… / This matters because…</em></span></div>
-      <div class="scaffold-step"><span class="scaffold-step-num">6. Arg 2</span><span><strong>Second argument — same structure as Argument 1.</strong><br><em>My second point is that… / To illustrate this… / A clear example of this is… / This is supported by Source [1/2], which states that… / Furthermore… / Building on this… / This matters because…</em></span></div>
-      <div class="scaffold-step"><span class="scaffold-step-num">7. Conclude</span><span><strong>Summarise your talk, then end with a broader final thought.</strong><br><em><u>Summary:</u> In conclusion, [topic] is… Having considered [Arg 1] and [Arg 2], I believe… / To sum up, I have argued that… and that… Therefore… / In conclusion, both sources show that… which suggests…</em><br><em><u>Final thought:</u> This is particularly relevant today because… / In a world where… this question becomes even more important… / It is worth asking ourselves… / Perhaps it is time to reconsider… / There are no easy answers here, but what is certain is… / The debate around [topic] is far from over…</em></span></div>`;
+      <div class="scaffold-step"><span class="scaffold-step-num">1. Intro</span><div><strong>Introduce the topic.</strong>
+        ${mkPb('ol-pb-intro',[
+          {phrases:['Today I would like to talk about…','The topic I have been asked to discuss is…','[Topic] is a subject that raises a number of important questions…']}
+        ])}
+      </div></div>
+      <div class="scaffold-step"><span class="scaffold-step-num">2. Issue</span><div><strong>Formulate the issue — the central question the sources explore.</strong> Not a problem, but a question worth answering.
+        ${mkPb('ol-pb-issue',[
+          {phrases:['Having read the materials, the issue I would like to address is…','The issue raised in both sources is…','Based on the materials provided, the central question is…','The sources raise the issue of…','Looking at the materials, one key question emerges:…']}
+        ])}
+      </div></div>
+      <div class="scaffold-step"><span class="scaffold-step-num">3. Compare</span><div><strong>Compare the sources. Be the DJ — mix them, don't perform them.</strong>
+        ${mkPb('ol-pb-compare',[
+          {title:'Citing',phrases:['According to Source 1 / Source 2…','Source 1 argues that… while Source 2 suggests that…','As Source 1 / Source 2 points out…']},
+          {title:'Analysing',phrases:['This suggests that…','What this reveals is…','The implication here is that…','This is significant because…']},
+          {title:'Contrasting',phrases:['While Source 1 focuses on… Source 2 takes a different view…','Both sources agree that… however they differ in…','Taken together, these sources paint a picture of…']}
+        ])}
+      </div></div>
+      <div class="scaffold-step"><span class="scaffold-step-num">4. Opinion</span><div><strong>State your opinion — agree, disagree, or divided.</strong>
+        ${mkPb('ol-pb-opinion',[
+          {phrases:['In my view…','Having considered both sources, I would argue that…','I find myself agreeing with… because…','I disagree with the idea that… and here is why…','I can see merit on both sides — on one hand… on the other…']}
+        ])}
+      </div></div>
+      <div class="scaffold-step"><span class="scaffold-step-num">5. Arg 1</span><div><strong>First argument — state your point, explain, discuss and prove it with examples.</strong>
+        ${mkPb('ol-pb-arg1',[
+          {title:'Topic sentence',phrases:['My first point is that…','To begin with…']},
+          {title:'Citing',phrases:['According to Source 1 / Source 2 by [author / publication]…','As [source] points out…','The data provided suggests that…']},
+          {title:'Analysing',phrases:['This suggests that…','This is significant because…','In other words…','The implication here is that…']},
+          {title:'Developing',phrases:['Furthermore…','Building on this…','To illustrate this further…','A clear example of this is…']},
+          {title:'Acknowledging complexity',phrases:['While it could be argued that…','However, one must also consider…','On the other hand…']}
+        ])}
+      </div></div>
+      <div class="scaffold-step"><span class="scaffold-step-num">6. Arg 2</span><div><strong>Second argument — same structure as Argument 1.</strong>
+        ${mkPb('ol-pb-arg2',[
+          {title:'Topic sentence',phrases:['My second point is that…','Another aspect worth considering is…']},
+          {title:'Citing',phrases:['According to Source 1 / Source 2 by [author / publication]…','As [source] points out…','The data provided suggests that…']},
+          {title:'Analysing',phrases:['This suggests that…','This is significant because…','In other words…','The implication here is that…']},
+          {title:'Developing',phrases:['Furthermore…','Building on this…','To illustrate this further…','A clear example of this is…']},
+          {title:'Acknowledging complexity',phrases:['While it could be argued that…','However, one must also consider…','On the other hand…']}
+        ])}
+      </div></div>
+      <div class="scaffold-step"><span class="scaffold-step-num">7. Conclude</span><div><strong>Summarise your talk, then end with a broader final thought.</strong>
+        ${mkPb('ol-pb-conclude',[
+          {title:'Step 1 — restate your position',phrases:['In conclusion, I have argued that…','To restate my position…','Throughout this talk I have maintained that…']},
+          {title:'Step 2 — echo your main points',phrases:['Having considered [point 1] and [point 2], it is clear that…','Through examining both sources, it is evident that…','The evidence from both sources points to…']},
+          {title:'Step 3 — final broader thought',phrases:['This is particularly relevant today because…','In a world where… this question becomes even more important…','It is worth asking ourselves…','Perhaps it is time to reconsider…','There are no easy answers here, but what is certain is…','The debate around [topic] is far from over…']}
+        ])}
+      </div></div>`;
   }
 }
 
